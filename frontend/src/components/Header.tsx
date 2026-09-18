@@ -4,7 +4,7 @@ import { useState } from "react";
 const stateOptions = ["Uttar Pradesh"];
 const sectorOptions = ["Water"];
 
-export function Header() {
+export function Header({ dataStatus = "fallback" }: { dataStatus?: "loading" | "api" | "fallback" }) {
   const [openMenu, setOpenMenu] = useState<"state" | "sector" | null>(null);
   const [state, setState] = useState(stateOptions[0]);
   const [sector, setSector] = useState(sectorOptions[0]);
@@ -44,6 +44,9 @@ export function Header() {
               setOpenMenu(null);
             }}
           />
+          <span className="rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-xs text-[var(--color-text-muted)] shadow-sm">
+            {dataStatus === "api" ? "Local API connected" : dataStatus === "loading" ? "Loading local API" : "Local mock fallback"}
+          </span>
           <span className="rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-xs text-[var(--color-text-muted)] shadow-sm">
             Human decision point. Setu flags; it does not decide.
           </span>

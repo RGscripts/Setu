@@ -35,6 +35,9 @@ export type District = {
   classification: ClassificationState;
   rankRaw: number;
   rankReconciled: number;
+  explanationText?: string;
+  rankingMethod?: string;
+  auditPayload?: unknown;
 };
 
 export const FRESHNESS_THRESHOLD_DAYS = 365;
@@ -167,6 +170,8 @@ export function outcomeChange(district: District) {
 }
 
 export function caseExplanation(district: District) {
+  if (district.explanationText) return district.explanationText;
+
   if (district.classification === "INVESTMENT_BLIND_SPOT") {
     return "Strong citizen signal plus supporting deficit evidence coincide with low investment. Prioritize this case for planning review; causal attribution not established.";
   }
@@ -183,6 +188,8 @@ export function caseExplanation(district: District) {
 }
 
 export function auditRecord(district: District) {
+  if (district.auditPayload) return district.auditPayload;
+
   return {
     admin_unit_id: district.id,
     admin_unit_name: district.name,

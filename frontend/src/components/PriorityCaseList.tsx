@@ -10,6 +10,7 @@ type Props = {
 export function PriorityCaseList({ districts, selectedId, onSelect }: Props) {
   const ranked = [...districts].sort((a, b) => a.rankReconciled - b.rankReconciled);
   const selected = districts.find((district) => district.id === selectedId);
+  const rankingMethod = selected?.rankingMethod ?? "classification_severity > signal_confidence_band > corroboration_band > persistence > report_count";
 
   return (
     <aside className="rounded-md border border-[var(--color-border)] bg-white p-4 shadow-sm">
@@ -66,7 +67,7 @@ export function PriorityCaseList({ districts, selectedId, onSelect }: Props) {
         </p>
       ) : null}
       <p className="mt-4 text-xs leading-5 text-[var(--color-text-muted)]">
-        Lexicographic: classification_severity &gt; signal_confidence_band &gt; corroboration_band &gt; persistence &gt; report_count
+        {rankingMethod}
       </p>
     </aside>
   );

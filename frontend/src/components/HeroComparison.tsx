@@ -12,6 +12,7 @@ type Props = {
 export function HeroComparison({ districts, selectedId, onSelect }: Props) {
   const rawRanked = [...districts].sort((a, b) => a.rankRaw - b.rankRaw);
   const evidenceRanked = [...districts].sort((a, b) => a.rankReconciled - b.rankReconciled);
+  const biggestMover = [...districts].sort((a, b) => (b.rankRaw - b.rankReconciled) - (a.rankRaw - a.rankReconciled))[0];
 
   return (
     <section className="mx-auto grid max-w-7xl gap-4 px-6 py-5 lg:grid-cols-2">
@@ -70,7 +71,7 @@ export function HeroComparison({ districts, selectedId, onSelect }: Props) {
           })}
         </ol>
         <p className="mt-4 inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-slate-50 px-3 py-2 text-sm font-semibold text-[var(--color-text-primary)]">
-          <ArrowLeft size={16} aria-hidden="true" /> Jhansi moves from LAST to FIRST
+          <ArrowLeft size={16} aria-hidden="true" /> {biggestMover.name} moves from #{biggestMover.rankRaw} raw to #{biggestMover.rankReconciled} evidence
         </p>
       </div>
     </section>
