@@ -1,0 +1,4 @@
+﻿admin_unit_id,admin_unit_name,sector,infra_coverage_pct,infra_data_freshness_days,report_count,channel_count,persistence_windows,total_windows,geographic_spread_score,duplication_flag,signal_confidence_score,signal_confidence_band,source_timestamp
+176,Gorakhpur,water,38,90,327,4,6,8,0.7,false,78,HIGH,2026-06-01T00:00:00Z
+166,Jhansi,water,42,80,150,3,5,8,0.8,false,72,HIGH,2026-06-01T00:00:00Z
+175,Prayagraj,water,86,400,1000,2,2,8,0.2,true,45,MEDIUM,2025-01-01T00:00:00Z

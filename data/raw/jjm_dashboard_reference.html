@@ -1,0 +1,2497 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head><title>
+	JJM Dashboard
+</title><meta charset="UTF-8" /><meta http-equiv="cache-control" content="no-cache" /><meta http-equiv="expires" content="0" /><meta http-equiv="pragma" content="no-cache" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="/JJMReport/content/css/esri.css?v=20220614163830" rel="stylesheet" />
+    <link href="/JJMReport/content/css/tundra.css?v=20210812172027" rel="stylesheet" />
+    <link href="content/css/fonts_style.css" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="/JJMReport/content/css/font-awesome.min.css?v=20221123153337" />
+    <link href="/JJMReport/content/css/font-face.css?v=20210303104213" rel="stylesheet" />
+    <link href="/JJMReport/content/css/legend.css?v=20211118113441" rel="stylesheet" type="text/css" />
+    <script src="/JJMReport/content/js/jquery.min.js?v=20220530100430" type="text/javascript"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="content/images/img/JJM_180x180.png" /><link rel="icon" type="image/png" sizes="16x16" href="content/images/img/JJM_16x16.png" /><link rel="icon" type="image/png" sizes="32x32" href="content/images/img/JJM_32x32.png" />
+    <!-- Required to convert named colors to RGB -->
+    <script src="content/js/rgbcolor.min.js" type="text/javascript"></script>
+    <script src="content/js/canvg.min.js" type="text/javascript"></script>
+    <script src="content/js/html2canvas.min.js" type="text/javascript"></script>
+    <script src="content/js/jszip.min.js" type="text/javascript"></script>
+    <script src="content/js/kendo.all.min.js" type="text/javascript"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WQYLJRC2X1"></script>
+    <script> window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-WQYLJRC2X1'); </script>
+
+    <script type="text/javascript">
+        function getprintDate() {
+            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            ];
+
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
+            var yyyy = today.getFullYear();
+
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+            var today = dd + ' ' + monthNames[today.getMonth()] + ' ' + yyyy;
+            //var today = dd + '/' + mm + '/' + yyyy;
+            return today;
+        }
+        function ExporttablePdf() {
+
+            $("#pdftablehdr").show();
+            $("#btn_download").hide();
+            $("#printDate").text('Printed on : ' + getprintDate());
+            kendo.drawing.drawDOM("#pdfTableData",
+                {
+                    paperSize: "A4",
+                    //landscape: true,
+                    margin: { left: ".5cm", top: ".1cm", right: ".5cm", bottom: ".1cm" },
+                    scale: 0.5,
+                    height: 500,
+                    repeatHeaders: true
+                })
+                .then(function (group) {
+                    $("#pdftablehdr").hide();
+                    $("#btn_download").show();
+
+                    $("#printDate").text('');
+                    return kendo.drawing.exportPDF(group, {
+                        paperSize: "a4",
+                        margin: { left: ".5cm", top: ".1cm", right: ".5cm", bottom: ".1cm" },
+                    }).done(function (data) {
+                        kendo.saveAs({
+                            dataURI: data,
+                            fileName: "FHTCDataTable.pdf"
+                        });
+                    });
+                });
+
+        }
+        function ExporttablePdf2() {
+
+            $("#pdftablehdr2").show();
+            $("#btn_download2").hide();
+            $("#printDate2").text('Printed on : ' + getprintDate());
+            kendo.drawing.drawDOM("#pdfTableData2",
+                {
+                    paperSize: "A4",
+                    //landscape: true,
+                    margin: { left: ".5cm", top: ".1cm", right: ".5cm", bottom: ".1cm" },
+                    scale: 0.5,
+                    height: 500,
+                    repeatHeaders: true
+                })
+                .then(function (group) {
+                    $("#pdftablehdr2").hide();
+                    $("#btn_download2").show();
+
+                    $("#printDate2").text('');
+                    return kendo.drawing.exportPDF(group, {
+                        paperSize: "a4",
+                        margin: { left: ".5cm", top: ".1cm", right: ".5cm", bottom: ".1cm" },
+                    }).done(function (data) {
+                        kendo.saveAs({
+                            dataURI: data,
+                            fileName: "FHTCDataTable.pdf"
+                        });
+                    });
+                });
+
+        }
+        function isIEBrowser() {
+            var ieBrowser;
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf("MSIE ");
+
+            if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) // Internet Explorer
+            {
+                ieBrowser = true;
+            } else //Other browser
+            {
+                console.log('Other Browser');
+                ieBrowser = false;
+            }
+
+            return ieBrowser;
+        };
+        function ExportPdf() {
+
+            //debugger;
+            var doc = new jsPDF('portrait', 'pt', 'a4', true);
+            var elementHandler = {
+                '#ignorePDF': function (element, renderer) {
+                    return true;
+                }
+            };
+
+            var source = document.getElementById("top-content");
+            doc.fromHTML(source, 15, 15, {
+                'elementHandlers': elementHandler
+            });
+
+            var svg = document.querySelector('#FHTC_Chart svg');
+            var canvas = document.createElement('canvas');
+            var canvasIE = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+
+            var data = (new XMLSerializer()).serializeToString(svg);
+            canvg(canvas, data);
+            var svgBlob = new Blob([data], {
+                type: 'image/svg+xml;charset=utf-8'
+            });
+
+            var url = canvas.toDataURL(svgBlob);//DOMURL.createObjectURL(svgBlob);
+
+            var img = new Image();
+            img.onload = function () {
+                context.canvas.width = $('#FHTC_Chart').find('svg').width();;
+                context.canvas.height = $('#FHTC_Chart').find('svg').height();;
+                context.drawImage(img, 0, 0);
+
+                var dataUrl;
+                if (isIEBrowser()) { // Check of IE browser 
+                    var svg = $('#FHTC_Chart').highcharts().container.innerHTML;
+                    canvg(canvasIE, svg);
+                    dataUrl = canvasIE.toDataURL('image/JPEG');
+                } else {
+                    dataUrl = canvas.toDataURL('image/jpeg');
+                }
+                doc.addImage(dataUrl, 'JPEG', 20, 150, 480, 600); // 365 is top 
+
+
+                $("#printDate").text('Printed on : ' + getprintDate());
+
+                var bottomContent = document.getElementById("printDate");
+                doc.fromHTML(bottomContent, 15, 750, {   //700 is bottom content top  if you increate this then you should increase above 365
+                    'width': 560,
+                    'elementHandlers': elementHandler
+                });
+
+                setTimeout(function () {
+                    doc.save('FHTC_Coverage.pdf');
+                    $("#printDate").text('');
+                }, 2000);
+            };
+            img.src = url;
+        }
+        function ExporttablePdf_HGJ() {
+
+            $("#pdftablehdr_HGJ").show();
+            $("#btn_download_HGJ").hide();
+            $("#printDate_HGJ").text('Printed on : ' + getprintDate());
+            kendo.drawing.drawDOM("#pdfTableData_HGJ",
+                {
+                    paperSize: "A4",
+                    //landscape: true,
+                    margin: { left: ".5cm", top: ".1cm", right: ".5cm", bottom: ".1cm" },
+                    scale: 0.5,
+                    height: 500,
+                    repeatHeaders: true
+                })
+                .then(function (group) {
+                    $("#pdftablehdr_HGJ").hide();
+                    $("#btn_download_HGJ").show();
+
+                    $("#printDate_HGJ").text('');
+                    return kendo.drawing.exportPDF(group, {
+                        paperSize: "a4",
+                        margin: { left: ".5cm", top: ".1cm", right: ".5cm", bottom: ".1cm" },
+                    }).done(function (data) {
+                        kendo.saveAs({
+                            dataURI: data,
+                            fileName: "HGJ_DataTable.pdf"
+                        });
+                    });
+                });
+
+        }
+    </script>
+    <script src="/JJMReport/content/js/init.js?v=20180810163507" type="text/javascript"></script>
+    <script src="content/js/jspdf.debug.js" type="text/javascript"></script>
+    <script src="/JJMReport/content/js/jquery.min.js?v=20220530100430" type="text/javascript"></script>
+    <script src="content/js/highcharts.js" type="text/javascript"></script>
+    <script src="content/js/exporting.js" type="text/javascript"></script>
+    <script src="/JJMReport/content/js/jjm.js?v=20200922111003" type="text/javascript"></script>
+    <script src="/JJMReport/content/js/legend.js?v=20240725142850" type="text/javascript"></script>
+    <script src="/JJMReport/content/js/JJM_Dashboard.js?v=20260406161210" type="text/javascript"></script>
+    <link rel="stylesheet" href="/JJMReport/content/css/jjm.css?v=20250904162851" id="theme_link" />
+    <link type="text/css" rel="stylesheet" href="/JJMReport/content/css/JJMResponsive.css?v=20241205110802" />
+
+      <script type="text/javascript">
+        function hover_home() {
+            ImgHome.setAttribute('src', 'content/images/FHTC.png');
+            ImgHome.setAttribute('alt', 'FHTC icon');
+
+        }
+
+        function unhover_home() {
+            ImgHome.setAttribute('src', 'content/images/FHTC.png');
+            ImgHome.setAttribute('alt', 'FHTC icon');
+        }
+        function hover_School() {
+            ImgSchool.setAttribute('src', 'content/images/SCH.png');
+            ImgSchool.setAttribute('alt', 'SCH icon');
+        }
+
+        function unhover_School() {
+            ImgSchool.setAttribute('src', 'content/images/SCH_D.png');
+            ImgSchool.setAttribute('alt', 'SCH icon');
+        }
+        function hover_HarGharJal() {
+            ImgHarGharJal.setAttribute('src', 'content/images/HarGharJal.png');
+            ImgHarGharJal.setAttribute('alt', 'Har Ghar Jal');
+        }
+
+        function unhover_HarGharJal() {
+            ImgHarGharJal.setAttribute('src', 'content/images/HarGharJal_D.png');
+            ImgHarGharJal.setAttribute('alt', 'Har Ghar Jal');
+        }
+
+        function hover_ioT() {
+            ImgioT.setAttribute('src', 'content/images/Location.png');
+            ImgioT.setAttribute('alt', 'Location icon');
+        }
+
+        function unhover_ioT() {
+            ImgioT.setAttribute('src', 'content/images/Location_D.png');
+            ImgioT.setAttribute('alt', 'Location icon');
+        }
+        function hover_Quality() {
+            ImgQuality.setAttribute('src', 'content/images/water_quality.png');
+            ImgQuality.setAttribute('alt', 'Water quality');
+        }
+
+        function unhover_Quality() {
+            ImgQuality.setAttribute('src', 'content/images/water_quality_D.png');
+            ImgQuality.setAttribute('alt', 'water quality');
+        }
+        function hover_Asp() {
+            ImgAsp.setAttribute('src', 'content/images/Habitations.png');
+            ImgAsp.setAttribute('alt', 'Habitations icon');
+        }
+
+        function unhover_Asp() {
+            ImgAsp.setAttribute('src', 'content/images/Habitations_D.png');
+            ImgAsp.setAttribute('alt', 'Habitations icon');
+        }
+        function hover_Performance() {
+            ImgPerformance.setAttribute('src', 'content/images/svg/Performance_Blue.svg');
+            ImgPerformance.setAttribute('alt', 'performance image');
+        }
+
+        function unhover_Performance() {
+            ImgPerformance.setAttribute('src', 'content/images/svg/Performance.svg');
+            ImgPerformance.setAttribute('alt', 'performance image');
+        }
+        function hover_gis() {
+            Imggis.setAttribute('src', 'content/images/svg/GIS_Blue.svg');
+            Imggis.setAttribute('alt', 'GIS icon');
+        }
+
+        function unhover_gis() {
+            Imggis.setAttribute('src', 'content/images/svg/GIS.svg');
+            Imggis.setAttribute('alt', 'GIS icon');
+        }
+        function hover_ranking() {
+            Imgranking.setAttribute('src', 'content/images/ranking.png');
+            Imgranking.setAttribute('alt', 'Ranking icon');
+        }
+
+        function unhover_ranking() {
+            Imgranking.setAttribute('src', 'content/images/ranking_D.png');
+            Imgranking.setAttribute('alt', 'Ranking icon');
+        }
+        function hover_JJMReport() {
+            ImgJJMreport.setAttribute('src', 'content/images/JJMReport_icon.png');
+            ImgJJMreport.setAttribute('alt', 'Jal Jeevan Mission Report icon');
+        }
+
+        function unhover_JJMReport() {
+            ImgJJMreport.setAttribute('src', 'content/images/JJMReport_icon_D.png');
+            ImgJJMreport.setAttribute('alt', 'Jal Jeevan Mission Report icon');
+        }
+        function hover_citizen_corner() {
+            ImgCitizen_corner.setAttribute('src', 'content/images/citizen_corner_logo.png?v=124');
+            ImgCitizen_corner.setAttribute('alt', 'Citizen Corner Logo');
+        }
+
+        function unhover_citizen_corner() {
+            ImgCitizen_corner.setAttribute('src', 'content/images/citizen_corner_logo_D.png?v=124');
+            ImgCitizen_corner.setAttribute('alt', 'Citizen Corner Logo');
+        }
+    </script>
+
+
+    <style type="text/css">
+        html, body, h1, h2, h3, h4, h5 {
+            font-family: Open Sans;
+            font-style: normal;
+        }
+
+        .jjm-check, .jjm-radio {
+            width: 18px;
+            height: 18px;
+            position: relative;
+            top: 4px;
+        }
+
+        .se-pre-con {
+            position: fixed;
+            right: 0px;
+            bottom: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            opacity: 0.85;
+            background-color: rgb(90, 156, 199);
+        }
+
+        .loader_main {
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        .se-pre-con2 {
+            position: absolute;
+            width: inherit;
+            height: inherit;
+            /*background-image: url('content/images/img/loading.gif');*/
+            background-color: #ccc;
+            opacity: 0.8;
+            backgourd-repeat: no-repeat;
+            background-postition: 50% 50%;
+        }
+
+        .jjm-hdr2 {
+            font-size: 11px !important;
+        }
+
+        #myTable2 tr:nth-child(odd) {
+            background-color: #e3f6fc;
+        }
+
+        #myTable2 tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        #myTable2 thead tr {
+            background-color: #ffffff !important;
+        }
+
+        #myTable_HGJ tr:nth-child(odd) {
+            background-color: #e3f6fc;
+        }
+
+        #myTable_HGJ tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        #myTable_HGJ thead tr {
+            background-color: #ffffff !important;
+        }
+
+        #myTable_financial tr:nth-child(odd) {
+            background-color: #e3f6fc;
+        }
+
+        #myTable_financial tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        #myTable_financial thead tr {
+            background-color: #ffffff !important;
+        }
+
+        #myTable_financial_M tr:nth-child(odd) {
+            background-color: #e3f6fc;
+        }
+
+        #myTable_financial_M tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        #myTable_financial_M thead tr {
+            background-color: #ffffff !important;
+        }
+    </style>
+    <style type="text/css">
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 180px;
+            height: 34px;
+        }
+
+            .switch input {
+                display: none;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 100;
+            bottom: 0;
+            background-color: rgba(204,204,204,.5);
+            -webkit-transition: .4s;
+            transition: .4s;
+            width: 180px;
+            z-index: 2;
+            border-radius: 25px;
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                /*color:black!important;*/
+                -webkit-transition: .4s;
+                transition: .4s;
+                width: 90px;
+                z-index: -1;
+                border-radius: 25px;
+            }
+
+        input:checked + .slider {
+            background-color: rgba(204,204,204,.5);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px rgba(204,204,204,.5);
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(80px);
+            -ms-transform: translateX(80px);
+            transform: translateX(80px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 64px;
+        }
+
+            .slider.round:before {
+                border-radius: 50%;
+            }
+
+        ::-webkit-scrollbar {
+            height: 4px; /* height of horizontal scrollbar ← You're missing this */
+            width: 4px; /* width of vertical scrollbar */
+            border: 1px solid #d5d5d5;
+        }
+    </style>
+    <style type="text/css">
+        /* width */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+
+            /* Handle on hover */
+            ::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+    </style>
+</head>
+
+<body style="background-color: #F6F6F6;">
+
+    <form name="form1" method="post" action="./JJMIndia.aspx" id="form1">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="xiNzFxW8+4/vgzpZwpb4PhD/At7+iipTGjK7IFIEc89iCEcF7D2tppvGExRKDB1/Pln3vRexp4efywMtqBzF0kQ6ljtj2xfpZ2qkhJVqi8Kq3hfxXkeRkcRWJPk2yrB9UCceNwqrveUZwsGH2xGo6UcFWVlmB0n2THuFmTwOXktihWJoAsRxBuLXQL4hfVZIYAAThKMYd7wh746OzNYoEggPf1CZ3w6GdYtQYB+0RdHDKxk3" />
+
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="6D534B54" />
+<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="" />
+        <!-- Top container -->
+        <div class="jjm-bar jjm-top jjm-large jjm-header jjm-card" style="z-index: 4;">
+            <span class="jjm-left jjm-padding">
+                <img src="content/images/img/goldenemb.png" alt="national emblem of india" style="height: 70px;" /></span>
+            <div class="jjm-center jjm-text-header">
+                <span id="lblHead1">Jal Jeevan Mission - Har Ghar Jal</span>
+                <span class="jjm-small" id="lblHead2">
+                    <br />
+                    <br class="jjm-hide-small jjm-hide-medium" />
+                    <b class="jjm-medium jjm-margin-top jjm-hide-small jjm-hide-medium">Functional Household Tap Connection &nbsp;<br class="jjm-hide-large jjm-hide-medium" />
+                        <span>(FHTC)</span></b>&nbsp;
+                    <b class="jjm-medium jjm-hide-small jjm-hide-medium">in every rural home</b>
+                    <b class="jjm-hdr2 jjm-margin-top jjm-hide-large">Functional Household Tap Connection&nbsp;<br class="jjm-hide-large jjm-hide-medium" />
+                        <span>(FHTC)</span></b>&nbsp;
+                    <b class="jjm-hdr2  jjm-hide-large">in every rural home</b>
+                </span>
+            </div>
+            <span class="jjm-right jjm-padding">
+                <img src="content/images/img/JJM_88x100.png" alt="Jal Jeevan Mission" style="height: 70px;" /></span>
+        </div>
+        <div class="jjm-row jjm-hide-large jjm-brown">
+            <div class="jjm-hide-large jjm-brown" style="z-index: 4; margin-top: 90px;">
+                <div class="jjm-col l1 m1 s1 jjm-left jjm-hide-large"><a class="jjm-bar-item jjm-button jjm-hide-large jjm-hover-none jjm-hover-text-light-grey" href="javascript:jjm_open();"><i class="fa fa-bars"></i></a></div>
+                <div class="jjm-col l4 m4 s4 jjm-right-align jjm-hide-large jm-hide-medium jjm-large" style="margin-top: 10px;">
+                    <span id="lbl_Head_HH_Sch">Tap water supply in</span>
+                </div>
+                <div class="jjm-col l7 m7 s7 jjm-left-align jjm-hide-large jm-hide-medium jjm-medium jjm-padding-small">
+                    <label class="switch jjm-text-black">
+                        <input type="checkbox" />
+                        <div class="slider jjm-round">
+                            <div style="float: left; margin-top: 4px; margin-left: 2px;" class="jjm-padding-small" onclick="wait(0)"><span id="lblhh_Name">Households</span></div>
+                            <div style="float: right; margin-top: 4px; margin-right: 2px;" class="jjm-padding-small" onclick="wait(1)"><span id="lblSch_Awc_Name">Schools / AWCs</span></div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <!-- Sidebar/menu -->
+        <nav class="jjm-sidebar jjm-collapse jjm-white jjm-animate-left jjm-border-right jjm-border-light-gray jjm-card" style="z-index: 3; width: 100px;" id="mySidebar">
+            <div class="jjm-container jjm-hide-small">
+                <h5>&nbsp;</h5>
+            </div>
+            <div class="jjm-bar-block">
+                <a href="#" class="jjm-bar-item jjm-button jjm-padding jjm-hide-large jjm-dark-grey jjm-hover-black" onclick="jjm_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>Close</a>
+                <a href="javascript:changeLanguage('en')" id="lnken" class="jjm-bar-item jjm-menu-active jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom jjm-round-xlarge jjm-card jjm-center"><span>English</span></a>
+                <a href="javascript:changeLanguage('hi')" id="lnkhi" class="jjm-bar-item jjm-menu-active jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom jjm-round-xlarge jjm-card jjm-center"><span>हिन्दी</span></a>
+                <div class="links">
+                    <h6 class="youtube" onclick="openNav()"><i class="fa fa-play-circle" aria-hidden="true"></i></h6>
+                    <a href="https://ejalshakti.gov.in/jjm/citizen_corner/villageinformation.aspx" target="_blank" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom" onmouseover="hover_citizen_corner();" onmouseout="unhover_citizen_corner();">
+                        <div class="jjm-center">
+                            <img id="ImgCitizen_corner" src="content/images/citizen_corner_logo_D.png?v=124" alt="citizen corner" style="height: 60px;" />
+                            <span id="lblcitizen_corner">Citizen Corner</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="links">
+                     <h6 class="youtube" onclick="openNav_hc()"><i class="fa fa-play-circle" aria-hidden="true"></i></h6>
+                    <a href="JJMIndia.aspx" class="jjm-bar-item jjm-menu-active jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom" onmouseover="hover_home();" onmouseout="unhover_home();">
+                        <div class="jjm-center">
+                            <img id="ImgHome" src="content/images/FHTC.png" alt="FHTC icon" style="height: 50px; width: 60px;" />
+                            <span id="lblMenu_HH">Tap water supply in households (HHs)</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="links">
+                    <h6 class="youtube" onclick="openNav2()"><i class="fa fa-play-circle" aria-hidden="true"></i></h6>
+                    <a href="https://ejalshakti.gov.in/WQMIS/" target="_blank" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom" onmouseover="hover_Quality();" onmouseout="unhover_Quality();">
+                        <div class="jjm-center">
+                            <img id="ImgQuality" src="content/images/water_quality_D.png" alt="water quality icon" style="height: 50px; width: 40px;" /><br />
+                            <span id="lblMenu_WQ">Water quality</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="links">
+                    <h6 class="youtube" onclick="openNav3()"><i class="fa fa-play-circle" aria-hidden="true"></i></h6>
+                    <a href="JJM_DistrictRanking.aspx" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom" onmouseover="hover_ranking();" onmouseout="unhover_ranking();">
+                        <div class="jjm-center">
+                            <img id="Imgranking" src="content/images/ranking_D.png" alt="ranking icon" style="height: 50px; width: 60px;" />
+                            <span id="lblMenu_ranking">Jal Jeevan Survekshan 2023</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="links">
+                    <h6 class="youtube" onclick="openNav4()"><i class="fa fa-play-circle" aria-hidden="true"></i></h6>
+                    <a href="School/JJMSchool_India.aspx" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom" onmouseover="hover_School();" onmouseout="unhover_School();">
+                        <div class="jjm-center">
+                            <img id="ImgSchool" src="content/images/SCH_D.png" alt="SCH icon" style="height: 50px; width: 60px;" />
+                            <span id="lblMenu_Sch_Awc">Tap water supply in Schools / AWCs</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="links">
+                    <h6 class="youtube" onclick="openNav5()"><i class="fa fa-play-circle" aria-hidden="true"></i></h6>
+                    <a href="JJMDistrictView.aspx" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom" onmouseover="hover_Asp();" onmouseout="unhover_Asp();">
+                        <div class="jjm-center">
+                            <img id="ImgAsp" src="content/images/Habitations_D.png" alt="Habitations icon" style="height: 50px; width: 60px;" />
+                            <span id="lblMenu_asp_aejes">Tap water supply in districts</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="links">
+                    <h6 class="youtube" onclick="openNav6()"><i class="fa fa-play-circle" aria-hidden="true"></i></h6>
+                    <a href="Iot/IoTMonitoring.aspx" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom" onmouseover="hover_ioT();" onmouseout="unhover_ioT();">
+                        <div class="jjm-center">
+                            <img id="ImgioT" src="content/images/Location_D.png" alt="location icon" style="height: 50px; width: 60px;" />
+                            <span id="lblMenu_IoT">Sensor based IoT pilots</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="links">
+                    <h6 class="youtube" onclick="openNav7()"><i class="fa fa-play-circle" aria-hidden="true"></i></h6>
+                    <a href="https://ejalshakti.gov.in/" target="_blank" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-border-gray jjm-border-bottom" onmouseover="hover_JJMReport();" onmouseout="unhover_JJMReport();">
+                        <div class="jjm-center">
+                            <img id="ImgJJMreport" src="content/images/JJMReport_icon_D.png" alt="JJMReport icon" style="height: 50px; width: 40px;" /><br />
+                            <span id="lblJJMreport">JJM Report</span>
+                        </div>
+                    </a>
+                </div>
+
+                <a href="#" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-hide" onmouseover="hover_Location();" onmouseout="unhover_Location();">
+                    <img id="ImgLocation" src="content/images/svg/Location.svg" alt="Location icon" /><span class="jjm-margin-left"> Village Level View</span></a>
+                <a href="#" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-hide" onmouseover="hover_Performance();" onmouseout="unhover_Performance();">
+                    <img id="ImgPerformance" src="content/images/svg/Performance.svg" alt="Performance icon" /><span class="jjm-margin-left"> Performance Tracker</span></a>
+                <a href="#" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-hide" onmouseover="hover_gis();" onmouseout="unhover_gis();">
+                    <img id="Imggis" src="content/images/svg/GIS.svg" alt="GIS icon" /><span class="jjm-margin-left"> GIS View</span></a>
+                <a href="#" class="jjm-bar-item jjm-menu jjm-button jjm-padding-16 jjm-hide btn-toggle"><i class="fa fa-moon-o fa-2x"></i><span class="jjm-margin-left" id="SpanTheme">&nbsp;&nbsp;Dark Theme</span></a>
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br class="jjm-hide-large jjm-hide-medium" />
+                <br class="jjm-hide-large jjm-hide-medium" />
+                <br class="jjm-hide-large jjm-hide-medium" />
+                <br class="jjm-hide-large jjm-hide-medium" />
+                <br class="jjm-hide-large jjm-hide-medium" />
+                <br class="jjm-hide-large jjm-hide-medium" />
+                <input type="hidden" name="hidThemeid" id="hidThemeid" value="0" />
+            </div>
+        </nav>
+
+
+        <!-- Overlay effect when opening sidebar on small screens -->
+        <div class="jjm-overlay jjm-hide-large jjm-animate-opacity" onclick="jjm_close()" style="cursor: pointer" title="close side menu" id="myOverlay">
+        </div>
+
+        <!-- !PAGE CONTENT! -->
+        <div class="jjm-main jjm-topMobile" style="margin-left: 100px;">
+
+            <!-- Header -->
+            <div class="jjm-container jjm-centered jjm-hide-small" style="padding-top: 50px"></div>
+
+            
+            <div class="jjm-col l12 m12 s12 jjm-padding jjm-hide">
+                <div class="jjm-padding jjm-white jjm-left-align jjm-leftbar jjm-border-red">
+                    <span class="jjm-text-red jjm-medium jjm-bold" style="font-style: italic;">Disclaimer : Total households reduced due to village directory reconciliation of Uttar Pradesh and Andhra Pradesh.
+                    </span>
+                </div>
+            </div>
+            <div class="jjm-container jjm-centered jjm-hide-large jjm-margin-top">
+                <div class="jjm-col l12 m12 s12 jjm-card jjm-white jjm-round-xlarge jjm-padding jjm-hide-large search-data">
+                    <div class="jjm-row">
+                        <div class="jjm-col l12 m12 s12 jjm-left-align jjm-margin-bottom">
+                            <span class="jjm-text-orange" style="text-align: left; font-weight: 800; font-size: 12px !important;">Citizen Corner:</span>
+                        </div>
+                    </div>
+                    <div class="jjm-row">
+                        <div class="jjm-col l12 m8 s12">
+                            <ul class="jjm-ul jjm-card-2 jjm-white jjm-round-xlarge">
+                                <li class="jjm-padding-13">
+                                    <i class="fa fa-search jjm-margin-right"></i>
+                                    <input class="jjm-no-outline jjm-medium jjm-search" id="myInput_M" onclick="getStateDistrict_M()" onkeyup="villageSearch_M()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Know status of JJM implementation in your village: Select State -> District-> Village" />
+                                    <div style="margin: auto; position: relative;">
+                                        <table style="width: 100%; display: none; margin-top: 20px; position: absolute; z-index: 3;" class="jjm-table jjm-striped jjm-border jjm-medium jjm-margin-top jjm-white" id="tbl_search_M">
+                                        </table>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="jjm-col l12 m4 s12">
+                            
+                            <a href="https://ejalshakti.gov.in/jjm/citizen_corner/villageinformation.aspx" target="_blank" style="text-decoration: none">
+                                <ul class="jjm-ul jjm-card jjm-white jjm-round-xlarge citizen-div-margin">
+                                    <li style="padding: 4px">
+                                        <div class="citizen-corner-img-position">
+                                            <img src="content/images/citizen_corner_logo_old.png" alt="citizen corner logo" class="citizen-imis-logo" />
+                                            <div class="citizen-text-position">
+                                                <div class="citizen-corner-text-2"><b>know water quality of your village</b></div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </a>
+                        </div>
+
+                        
+                    </div>
+                </div>
+            </div>
+       
+
+            <div class="jjm-container jjm-centered" style="padding-top: 20px">
+                <div class="jjm-row">
+                    <div class="se-pre-con">
+                        <img id="imgLoading" src="content/images/img/loading.gif" alt="loading" style="height: 35px; width: 35px; transform: translateY(-50%); position: absolute; top: 45%; left: 49%; opacity: 1.0; z-index: 9999;" />
+                    </div>
+
+                    <div class="jjm-col l6 m12 s12 jjm-padding-small">
+
+                           
+
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-padding jjm-center jjm-margin-bottom jjm-hide-large" style="min-height: 190px;">
+                            <div class="jjm-col l12 m12 s12 jjm-left-align jjm-margin-bottom">
+                                <span class="jjm-text-blue" style="font-weight: 900; width: 100%; text-align: left; font-size: 12px !important;"><b><span id="lblInfo_National_St_M">India</span> | </b></span>
+                                <span class="jjm-text-orange" style="text-align: left; font-weight: 800; font-size: 12px !important;" id="lblInfo_head_M">Status of tap water supply in rural homes</span>
+                            </div>
+                            <div class="jjm-col l12 m12 s12">
+                                <div class="jjm-col l12 m12 s12 jjm-large jjm-padding-small jjm-text-brown">
+                                    <b><span id="lblInfo_hh_M">Total number of households (HHs)</span></b>
+                                </div>
+                                <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-xlarge  jjm-text-brown"><span id="lblHH_M" style="font-weight: 600;" class="jjm-text-shadow ">0</span></div>
+                            </div>
+                            <div class="jjm-col l12 m12 s12">
+                                <hr />
+                            </div>
+                            <div class="jjm-col l6 m6 s6">
+                                <div class="jjm-col l12 m12 s12 jjm-medium jjm-padding-small jjm-text-green">
+                                    <b><span id="lblInfo_hc_M">Households with
+                                        <br />
+                                        tap water connections<br />
+                                        (as on 15 Aug 2019)</span></b>
+                                </div>
+                               
+                                <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-xlarge jjm-text-green">
+                                    <span id="lblHC_15082019_M" style="font-weight: 600;" class="jjm-text-shadow ">0,00,000</span><br />
+                                    <span>(<span id="lblHC_15082019_Per_M" style="font-weight: 600; font-size: 12px;">0</span>%)</span>
+                                </div>
+                            </div>
+
+                               <div class="jjm-col l6 m6 s6">
+                                <div class="jjm-col l12 m12 s12 jjm-medium jjm-padding-small jjm-text-indigo">
+                                    <b><span id="lblInfo_hh_Mi_M">Remaining households as on 15 Aug 2019</span>
+                                    </b>
+                                </div>
+                                <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-xlarge jjm-text-indigo"><span id="lblHH_launch_M" style="font-weight: 600;" class="jjm-text-shadow ">0,000</span></div>
+                                <br />
+                            </div>
+
+
+                            
+                            <div class="jjm-col l12 m12 s12">
+                                <hr />
+                            </div>
+                          <div class="jjm-col l6 m6 s6">
+                                <div class="jjm-col l12 m12 s12 jjm-medium jjm-padding-small jjm-text-indigo">
+                                    <b><span id="lblInfo_hc_Mi_M">Households provided with tap water connection since launch of the Mission</span>
+                                    </b>
+                                </div>
+                                <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-xlarge jjm-text-indigo"><span id="lblHC_launch_M" style="font-weight: 600;" class="jjm-text-shadow ">0,000</span> <br /> (<span id="lblHCPer_launch_M" style="font-weight: 600;">0.0</span>%)</div>
+                                <br />
+                            </div>
+                          
+
+                             <div class="jjm-col l6 m6 s6">
+                                <div class="jjm-col l12 m12 s12 jjm-medium jjm-padding-small jjm-text-blue">
+                                    <b><span id="lblInfo_hc_AsOn_M">Households with                                        
+                                        tap water connections
+                                        (as on date)</span></b>
+                                </div>
+                                <div class="jjm-col l12 m12 s12  jjm-medium jjm-text-blue w3-tooltip_dashboard">+<span id="lblHCToday_M" style="font-weight: 600;">0</span><span class="w3-tooltiptext">FHTC provided yesterday</span></div>
+                                <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-xlarge jjm-text-blue">
+                                    <span id="lblHC_M" style="font-weight: 600;" class="jjm-text-shadow ">0</span><br />
+                                    (<span id="lblHCPer_M" style="font-weight: 600; font-size: 12px;">0</span>%)
+                                </div>
+                            </div>
+
+                        </div>
+                       
+                          
+                        
+                        
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-mapdivheight-tap">
+                            <div class="jjm-col l7 m7 s6 jjm-padding-small">
+                                <div class="jjm-col l12 m12 s12">
+                                    <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblMap_head">Tap water supply in households (HHs)</span><span class="jjm-text-blue">&nbsp;|&nbsp;</span><span class="jjm-text-blue" id="lblMap_National_St">India</span></h5>
+                                </div>
+                            </div>
+                            <div class="jjm-col l5 m5 s6 jjm-padding">
+                                <div id="toggles" class="jjm-padding-small">
+                                    <input type="checkbox" name="checkbox1" id="checkbox1" class="ios-toggle" checked />
+                                    <label for="checkbox1" id="lblchk_toggles" class="checkbox-label">....</label>
+                                    <span class="jjm-small"><a id="aId_St" href="javascript:changeParam(0)" class="jjm-pale-blue jjm-text-blue jjm-padding-small" style="text-decoration: none;"><b>State view</b></a> | <a id="aId_Dt" href="javascript:changeParam(1)" class="jjm-text-gray jjm-light-gray jjm-padding-small" style="text-decoration: none;"><b>District view</b></a></span>
+                                </div>
+                            </div>
+                            <div id="map" class="jjm-col l12 m12 s12 jjm-mapheight"></div>
+                            <input type="hidden" name="hidwebserviceUrl" id="hidwebserviceUrl" />
+                            <input type="hidden" name="hidwebserviceToken" id="hidwebserviceToken" />
+                            <input type="hidden" name="hidwebserviceUrl_district" id="hidwebserviceUrl_district" />
+                            <input type="hidden" name="hidwebserviceToken_district" id="hidwebserviceToken_district" />
+                            <div id="legend" class="legend-container legend jjm-col l12 m12 s12 jjm-right" style="height: 40px;">
+                                <ul class="jjm-tiny"></ul>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-padding jjm-left jjm-round-xlarge">
+                                <span id="lblHGJReportedMsg" style="font-weight: 600;" class="jjm-small jjm-left jjm-text-red">
+                                    <img src="content/images/hgj_star_reported.png" height="18" width="18" alt="start reported" />
+                                    <label id="lblHGJ_reported_dt">Har Ghar Jal Reported States/ UTs</label></span>
+                                <span id="lblHGJCertifiedMsg" style="font-weight: 600;" class="jjm-small jjm-margin-left jjm-left jjm-text-red">
+                                    <img src="content/images/hgj_star.png" height="18" width="18" alt="start reported" />
+                                    <label id="lblHGJ_certified_dt">Har Ghar Jal Certified States/ UTs</label></span>
+                            </div>
+                        </div>
+
+
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-margin-top jjm-hide-large jjm-padding jjm-center">
+                            <h5 class="jjm-text-orange" style="font-weight: 800; width: 100%; text-align: left;"><span id="lblInfo_HHG_M">Har Ghar Jal<sup class="jjm-text-red">*</sup> Status</span></h5>
+                            <div class="jjm-col l12 m12 s12">
+                                <div class="jjm-col l12 m12 s12 jjm-round-large jjm-padding-small">
+                                    <div class="jjm-col l12 m12 s12 jjm-sand jjm-center jjm-small jjm-text-black jjm-card">
+                                        <br />
+                                        <b><span id="lbl100Per_State_C_M">Certified States/ UTs</span></b><br />
+                                        <span id="lblHCState_C_M" style="font-weight: 600;" class="jjm-large jjm-text-indigo">Goa</span>
+                                        <br />
+                                    </div>
+                                </div>
+                                <div class="jjm-col l12 m12 s12 jjm-round-large jjm-padding-small">
+                                    <div class="jjm-col l12 m12 s12 jjm-sand jjm-center jjm-small jjm-text-black jjm-card">
+                                        <br />
+                                        <b><span id="lbl100Per_State_M">Reported States/ UTs</span></b><br />
+                                        <marquee id="mrqId_M" style="display: none;" hspace="0" vspace="1" scrolldelay="135" scrollamount="6" loop="infinite" onmouseover="document.all.mrqId_M.stop()" onmouseout="document.all.mrqId_M.start()">
+                                        </marquee>
+                                        <span id="lblHCState_M" style="font-weight: 600;" class="jjm-large jjm-text-indigo"></span>
+                                        <br />
+                                    </div>
+                                </div>
+                                <div class="jjm-col l3 m3 s6  jjm-padding-small jjm-round-large">
+                                    <div class="jjm-col l12 m12 s12 jjm-light-gray jjm-center jjm-small jjm-text-black  jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-border-bottom">
+                                            <br />
+                                            <b><span id="lbl100Per_District_M">Districts</span></b>
+                                            <br />
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_District_Rep_M">Reported</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(1)'></i></b>
+                                            <br />
+                                            <span id="lblHCDistrict_M" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCDistrict_M')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_list(1)" style="font-weight: 600; cursor: pointer;" id="hide_DistrictHGJ_M">(+<span id="lblNoofDistrictHGJ_Today_M">0</span>)</a>
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6">
+                                            <b><span id="lbl100Per_District_C_M">Certified</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(2)'></i></b>
+                                            <br />
+                                            <span id="lblHCDistrict_C_M" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="getdateCertifiedDistrictBlock('lblHCDistrict_C_M',1)">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_Certifiedlist(1)" style="font-weight: 600; cursor: pointer;" id="hide_DistrictHGJCertified_M">(+<span id="lblNoofDistrictHGJCertified_Today_M">0</span>)</a>
+                                            <br />
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="jjm-col l3 m3 s6 jjm-padding-small jjm-round-large">
+                                    <div class="jjm-col l12 m12 s12 jjm-pale-red jjm-center jjm-small jjm-text-black  jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-border-bottom">
+                                            <br />
+                                            <b><span id="lbl100Per_Block_M">Blocks</span></b>
+                                            <br />
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_Block_Rep_M">Reported</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(1)'></i></b>
+                                            <br />
+                                            <span id="lblHCBlock_M" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCBlock_M')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_list(2)" style="font-weight: 600; cursor: pointer;" id="hide_BlockHGJ_M">(+<span id="lblNoofBlockHGJ_Today_M">0</span>)</a>
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6">
+                                            <b><span id="lbl100Per_Block_C_M">Certified</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(2)'></i></b>
+                                            <br />
+                                            <span id="lblHCBlock_C_M" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="getdateCertifiedDistrictBlock('lblHCBlock_C_M',2)">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_Certifiedlist(2)" style="font-weight: 600; cursor: pointer;" id="hide_BlockHGJCertified_M">(+<span id="lblNoofBlockHGJCertified_Today_M">0</span>)</a>
+                                            <br />
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="jjm-col l3 m3 s6 jjm-padding-small">
+                                    <div class="jjm-col l12 m12 s12 jjm-pale-blue jjm-center jjm-small jjm-text-black  jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-border-bottom">
+                                            <br />
+                                            <b><span id="lbl100Per_Panchayat_M">Panchayats</span></b>
+                                            <br />
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_Panchayat_Rep_M">Reported</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(1)'></i></b>
+                                            <br />
+                                            <span id="lblHCPanchayat_M" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCPanchayat_M')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_list(3)" style="font-weight: 600; cursor: pointer;" id="hide_PanchayatHGJ_M">(+<span id="lblNoofPanchayatHGJ_Today_M">0</span>)</a>
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6">
+                                            <b><span id="lbl100Per_Panchayat_C_M">Certified</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(2)'></i></b>
+                                            <br />
+                                            <span id="lblHCPanchayat_C_M" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCPanchayat_C_M')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_Certifiedlist(3)" style="font-weight: 600; cursor: pointer;" id="hide_PanchayatHGJCertified_M">(+<span id="lblNoofPanchayatHGJCertified_Today_M">0</span>)</a>
+                                            <br />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="jjm-col l3 m3 s6  jjm-padding-small">
+                                    <div class="jjm-col l12 m12 s12 jjm-pale-green jjm-center jjm-small jjm-text-black  jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-border-bottom">
+                                            <br />
+                                            <b><span id="lbl100Per_Village_M">Villages</span></b>
+                                            <br />
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_Village_Rep_M">Reported</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(1)'></i></b>
+                                            <br />
+                                            <span id="lblHCVillage_M" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCVillage_M')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_list(4)" style="font-weight: 600; cursor: pointer;" id="hide_VillageHGJ_M">(+<span id="lblNoofvillageHGJ_Today_M">0</span>)</a>
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6">
+                                            <b><span id="lbl100Per_Village_C_M">Certified</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(2)'></i></b>
+                                            <br />
+                                            <span id="lblHCVillage_C_M" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCVillage_C_M')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_Certifiedlist(4)" style="font-weight: 600; cursor: pointer;" id="hide_VillageHGJCertified_M">(+<span id="lblNoofvillageHGJCertified_Today_M">0</span>)</a>
+                                            <br />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-left">
+                                    <span id="lblHGJMsg_M" style="font-weight: 600;" class="jjm-small jjm-left-align jjm-hide jjm-text-red">* Har Ghar Jal means all households in that unit are provided with tap water supply</span><br />
+                                    <span id="lblHGJMsg_M2" style="font-weight: 600;" class="jjm-small jjm-left-align jjm-hide jjm-text-red">Certified Districts/ Blocks/ Panchayats/ Villages are included in Reported</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-hide-large jjm-margin-top jjm-padding jjm-chartDivHeight">
+                            <div class="jjm-col l7 m7 s5 jjm-padding-small">
+                                <div class="jjm-col l12 m12 s12">
+                                    <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblGraph_Month_head_M">Progress: HHs provided with tap water supply</span></h5>
+                                </div>
+                            </div>
+                            <div class="jjm-col l5 m5 s7" style="height: 30px;">
+                                <ul class="nav nav-tabs-lab">
+                                    <li class="jjm-bottombar jjm-border-gray" style="margin-left: 1px; display: none;" id="li1_M"><a href="javascript:getfillDashboard_data(1)" class="list-group-item jjm-text-gray jjm-QualityButton jjm-small" id="ag1_M">Monthly</a></li>
+                                    <li class="jjm-bottombar jjm-border-gray" style="margin-left: 1px;" id="li2_M"><a href="javascript:getfillDashboard_data(2)" class="list-group-item jjm-text-gray jjm-QualityButton jjm-small" id="ag2_M">Yearly</a></li>
+                                    <li class="jjm-bottombar jjm-border-blue" style="margin-left: 1px;" id="li0_M"><a href="javascript:getfillDashboard_data(0)" class="list-group-item jjm-text-blue jjm-CoverageButton jjm-small" id="ag0_M">Cumulative</a></li>
+                                </ul>
+                            </div>
+                            <div class="jjm-col l12 m12 s12">
+                                <div id="myChart_M" class="jjm-chartHeight"></div>
+                            </div>
+                        </div>
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-hide-large jjm-margin-top jjm-padding jjm-chartDivHeight-financial">
+                            <div class="jjm-col l12 m12 s12 jjm-padding-small">
+                                <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblbudjectsaction_head_M">Financial Progress</span></h5>
+                            </div>
+                            <div class="jjm-col l12 m12 s12">
+                                <div id="myChart_budjectsaction_M" class="jjm-chartHeight-financial"></div>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-border-top jjm-margin-top">
+                                <h5 class="jjm-text-orange" style="font-weight: 800; width: 100%; text-align: left;"><span id="lblcollapse_expend_financial_M" class="jjm-text-black jjm-xlarge" style="cursor: pointer;" onclick="display_financial_M()">[+]</span>&nbsp;<span id="lblFinProgress_head_M">State wise financial progress details</span>
+                                </h5>
+                                <div class="jjm-col l12 m12 s12" id="financial_tab_M">
+                                    <div class="jjm-row">
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2019-2020');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding" style="width: 20%!important;">2019-20</div>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2020-2021');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding" style="width: 20%!important;">2020-21</div>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2021-2022');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding" style="width: 20%!important;">2021-22</div>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2022-2023');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding" style="width: 20%!important;">2022-23</div>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2023-2024');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding jjm-light-grey jjm-border-red" style="width: 20%!important;">2023-24</div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="jjm-col l12 m12 s12 jjm-responsive jjm-margin-top" id="financial_details_M">
+                                    <table class="jjm-table jjm-bordered" id="myTable_financial_M">
+                                        <thead>
+                                            <tr>
+                                                <th onclick="jjm.sortHTML('#myTable_financial_M', '.item', 'td:nth-child(1)')" style="cursor: pointer; width: 25%;">
+                                                    <div class="jjm-pale-blue jjm-hover-black jjm-padding jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                        <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                        <br />
+                                                        <label id="lbltblState_financial_M">State/ UT</label>
+                                                        <br />
+                                                        <br />
+                                                    </div>
+                                                </th>
+
+                                                <th onclick="jjm.sortNum('#myTable_financial_M', '.item', 'td:nth-child(3)')" style="cursor: pointer; width: 25%;">
+                                                    <div class="jjm-pale-blue jjm-hover-black jjm-padding jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                        <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                        <br />
+                                                        <label id="lbltblRelease_financial_M">
+                                                            Release (Rs in Crore)
+                                                        </label>
+
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tblBody_financial_M">
+                                        </tbody>
+                                        <tfoot id="tblFoot_financial_M" class="jjm-medium">
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="pdfTableData" class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-padding-small jjm-margin-top  loader_main" style="min-height: 600px;">
+                            <div class="se-pre-con2">
+                                <img id="imgLoading2" src="content/images/img/loading.gif" alt="loading" style="height: 35px; width: 35px; transform: translateY(-50%); position: absolute; top: 20%; left: 45%; opacity: 1.0; z-index: 9999;" />
+                            </div>
+
+                            <div class="jjm-col l12 m12 s12" id="pdftablehdr" style="display: none;">
+                                <div class="jjm-col l3 m3 s3 jjm-left">
+                                    <img src="content/images/embgold.png" style="height: 70px;" alt="National Emblem" />
+                                </div>
+                                <div class="jjm-col l6 m6 s6 jjm-center jjm-text-blue">
+                                    <h2>Jal Jeevan Mission
+                                        <br />
+                                        Har Ghar Jal</h2>
+                                </div>
+                                <div class="jjm-col l3 m3 s3 jjm-right">
+                                    <span class="jjm-right jjm-padding">
+                                        <img src="content/images/img/JJM_88x100.png" alt="Jal Jeevan Mission logo" style="height: 70px;" /></span>
+                                </div>
+                                <div class="jjm-col l12 m12 s12">
+                                    <hr />
+                                </div>
+                            </div>
+                            <div class="jjm-col l10 m10 s10">
+                                <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblTable_headAsOn">Status of households with tap water connection (as on date)</span></h5>
+                            </div>
+                            <div class="jjm-col l2 m2 s2">
+                                <a href="javascript:ExporttablePdf()" id="btn_download" class="jjm-right jjm-padding" title="Download Report" style="text-decoration: none;" data-toggle="tooltip">
+                                    <i class="fa fa-download jjm-large"></i>
+                                </a>
+                            </div>
+                            <div class="jjm-col l12 m12 s12">
+                                <table class="jjm-table jjm-bordered" id="myTable">
+                                    <thead>
+                                        <tr class="jjm-hide-small jjm-hide-medium">
+                                            <th onclick="jjm.sortHTML('#myTable', '.item', 'td:nth-child(1)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                    <label id="lbltblState">State/ UT</label>
+                                                    &nbsp;<i class="fa fa-sort" style="font-size: 13px;"></i><br />
+                                                    <br />
+                                                    &nbsp;
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable', '.item', 'td:nth-child(5)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                    <label id="lbltblHH">
+                                                        Total<br />
+                                                        households</label>&nbsp;<i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    &nbsp;
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable', '.item', 'td:nth-child(6)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%;">
+                                                    <label id="lbltblHC">
+                                                        Households<br />
+                                                        with tap<br />
+                                                        water supply</label>&nbsp;<i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable', '.item', 'td:nth-child(4)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                    <label id="lbltblHC_per">
+                                                        Households<br />
+                                                        with tap<br />
+                                                        water supply (%)</label>&nbsp;<i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr class="jjm-hide-large">
+                                            <th onclick="jjm.sortHTML('#myTable', '.item', 'td:nth-child(1)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblState_M">State/ UT</label><br />
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable', '.item', 'td:nth-child(5)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblHH_M">
+                                                        Total<br />
+                                                        households</label><br />
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable', '.item', 'td:nth-child(6)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblHC_M">
+                                                        Households<br />
+                                                        with tap<br />
+                                                        water supply</label>
+                                                    &nbsp;
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable', '.item', 'td:nth-child(4)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblHC_Per_M">
+                                                        Households<br />
+                                                        with tap<br />
+                                                        water supply<br />
+                                                        (%)</label>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblBody">
+                                    </tbody>
+                                    <tfoot id="tblFoot" class="jjm-medium">
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-right">
+                                <span class="jjm-right" id="printDate"></span>
+                            </div>
+                        </div>
+
+                        <div id="pdfTableData2" class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-padding-small jjm-margin-top " style="margin-top: 35px;">
+                            <div class="jjm-col l12 m12 s12" id="pdftablehdr2" style="display: none;">
+                                <div class="jjm-col l3 m3 s3 jjm-left">
+                                    <img src="content/images/embgold.png" style="height: 70px;" alt="national Emblem" />
+                                </div>
+                                <div class="jjm-col l6 m6 s6 jjm-center jjm-text-blue">
+                                    <h2>Jal Jeevan Mission
+                                        <br />
+                                        Har Ghar Jal</h2>
+                                </div>
+                                <div class="jjm-col l3 m3 s3 jjm-right">
+                                    <span class="jjm-right jjm-padding">
+                                        <img src="content/images/img/JJM_88x100.png" alt="Jal Jeevan missing logo" style="height: 70px;" /></span>
+                                </div>
+                                <div class="jjm-col l12 m12 s12">
+                                    <hr />
+                                </div>
+                            </div>
+                            <div class="jjm-col l10 m10 s10">
+                                <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblcollapse_expend" class="jjm-text-black jjm-xlarge" style="cursor: pointer;" onclick="display_missionReport()">[+]</span>&nbsp;<span id="lblTable_head_Mi">Tap water supply provided since start of the mission</span></h5>
+                            </div>
+                            <div class="jjm-col l2 m2 s2">
+                                <a href="javascript:ExporttablePdf2()" id="btn_download2" class="jjm-right jjm-padding" title="Download Report" style="text-decoration: none;" data-toggle="tooltip">
+                                    <i class="fa fa-download jjm-large"></i>
+                                </a>
+                            </div>
+                            <div class="jjm-col l12 m12 s12" id="div_mission">
+                                <table class="jjm-table jjm-bordered" id="myTable2">
+                                    <thead>
+                                        <tr class="jjm-hide-small jjm-hide-medium">
+                                            <th onclick="jjm.sortHTML('#myTable2', '.item', 'td:nth-child(1)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                    <label id="lbltblMiState">State/ UT</label><br />
+                                                    &nbsp;<i class="fa fa-sort" style="font-size: 13px;"></i><br />
+                                                    &nbsp;
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable2', '.item', 'td:nth-child(5)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%;">
+                                                    <label id="lbltblMiHH">
+                                                        Remaining<br />
+                                                        households<br />
+                                                        as on 15/08/2019</label>&nbsp;<i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable2', '.item', 'td:nth-child(6)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%;">
+                                                    <label id="lbltblMiHC">
+                                                        Progress<br />
+                                                        till date<br />
+                                                        <br />
+                                                    </label>
+                                                    &nbsp;<i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable2', '.item', 'td:nth-child(4)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                    <label id="lbltblMi_HC_Per">
+                                                        Progress<br />
+                                                        <br />
+                                                        (%)</label>&nbsp;<i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr class="jjm-hide-large">
+                                            <th onclick="jjm.sortHTML('#myTable2', '.item', 'td:nth-child(1)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblMiState_M">State/ UT</label>
+                                                    &nbsp;
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable2', '.item', 'td:nth-child(5)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblMiHH_M">
+                                                        Remaining<br />
+                                                        households<br />
+                                                        as on
+                                                        <br />
+                                                        15/08/2019
+                                                    </label>
+                                                    &nbsp;
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable2', '.item', 'td:nth-child(6)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblMiHC_M">
+                                                        Progress<br />
+                                                        till date<br />
+                                                        <br />
+                                                    </label>
+                                                    &nbsp;
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable2', '.item', 'td:nth-child(4)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblMiHC_Per_M">
+                                                        Progress<br />
+                                                        (%)
+                                                        <br />
+                                                        <br />
+                                                    </label>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblBody2">
+                                    </tbody>
+                                    <tfoot id="tblFoot2">
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-right">
+                                <span class="jjm-right" id="printDate2"></span>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="jjm-col l6 m12 s12 jjm-padding-small">
+                        <div class="jjm-centered jjm-hide-small">
+                            <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-padding jjm-hide-medium jjm-hide-small search-data">
+                                <div class="jjm-row jjm-margin-bottom">
+                                    <h5 class="jjm-text-orange" style="font-weight: 800; width: 100%; text-align: left;">Citizen Corner:</h5>
+                                    <div class="jjm-col l9 m9 s12">
+                                        <ul class="jjm-ul jjm-card-2 jjm-white jjm-round-xlarge">
+                                            <li class="jjm-padding-13">
+                                                <i class="fa fa-search"></i>
+                                                <input class="jjm-no-outline jjm-medium jjm-search" id="myInput" onclick="getStateDistrict()" onkeyup="villageSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Know status of JJM implementation in your village: Select State -> District-> Village" />
+                                                <div class="data-shows" style="margin: auto; position: relative;">
+                                                    <table style="width: 100%; display: none; margin-top: 20px; position: absolute; z-index: 3;" class="jjm-table jjm-striped jjm-border jjm-medium jjm-margin-top jjm-white" id="tbl_search">
+                                                    </table>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="jjm-col l3 m3 s6">
+                                        
+                                        <a href="https://ejalshakti.gov.in/jjm/citizen_corner/villageinformation.aspx" target="_blank" style="text-decoration: none">
+                                            <ul class="jjm-ul jjm-card-2 jjm-white jjm-round-xlarge" style="margin-left: 5px">
+                                                <li style="padding: 4px">
+                                                    <div class="citizen-corner-img-position">
+                                                        <img src="content/images/citizen_corner_logo_old.png" alt="citizen corner logo" class="citizen-imis-logo" />
+                                                        <div class="citizen-text-position">
+                                                            <div class="citizen-corner-text-2 jjm-small"><b>know water quality of your village</b></div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="jjm-row">
+                                <div class="jjm-col l1 m12 s12 jjm-hide-small" style="margin: auto;">
+                                    &nbsp;
+                                  <div style="display: none;">
+                                      <label id="lblStateCode"></label>
+                                      <label id="lblStateName"></label>
+                                      <label id="lblDistrictCode"></label>
+                                      <label id="lblDistrictName"></label>
+                                  </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                      
+
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-padding jjm-center jjm-hide-medium jjm-hide-small">
+                            <h5 class="jjm-text-blue jjm-margin-bottom" style="font-weight: 800; width: 100%; text-align: left;"><span id="lblInfo_National_St">India</span>&nbsp;|&nbsp;<span class="jjm-text-orange" id="lblInfo_head">Status of tap water supply in rural homes</span></h5>
+                            <div class="jjm-col l4 m4 s4">
+                                <div class="jjm-col l12 m12 s12 jjm-small  jjm-text-brown">
+                                    <b><span id="lblInfo_hh">Total number
+                                    <br />
+                                        of<br />
+                                        households (HHs)</span></b>
+                                </div>
+                                
+                                <div class="jjm-col l12 m12 s12  jjm-xlarge  jjm-text-brown"><span id="lblHH" style="font-weight: 600;" class="jjm-text-shadow">0</span></div>
+                                <div class="jjm-col l12 m12 s12  jjm-medium">&nbsp;</div>
+                            </div>
+                            <div class="jjm-col l4 m4 s4">
+                                <div class="jjm-col l12 m12 s12 jjm-small  jjm-text-green">
+                                    <b><span id="lblInfo_hc">Households with<br />
+                                        tap water connections
+                                    <br />
+                                        as on 15 Aug 2019</span></b>
+                                </div>
+                                
+                                <div class="jjm-col l12 m12 s12  jjm-xlarge jjm-text-green"><span id="lblHC_15082019" style="font-weight: 600;" class="jjm-text-shadow ">0,00,000</span></div>
+                                <div class="jjm-col l12 m12 s12 jjm-medium jjm-text-green"><span>(<span id="lblHC_15082019_Per" style="font-weight: 600;">0.00</span>%)</span></div>
+                            </div>
+
+
+                              <div class="jjm-col l4 m4 s4">
+                                <div class="jjm-col l12 m12 s12 jjm-small jjm-text-indigo">
+                                    <b><span id="lblInfo_hh_Mi">Remaining households </span>
+                                    </b>
+                                    <br /> <br />
+                                </div>
+                                <div class="jjm-col l12 m12 s12  jjm-medium jjm-text-indigo"><span id="lblHH_launch" style="font-weight: 600;" class="jjm-text-shadow jjm-xlarge">0,000</span></div>
+                                    
+                            </div>
+
+
+                           
+
+
+
+                            <div class="jjm-col l12 m12 s12">
+                                <hr style="border-top: 1px solid #ccc;" />
+                            </div>
+                          
+                            <div class="jjm-col l6 m6 s12">
+                                <div class="jjm-col l12 m12 s12 jjm-small  jjm-text-indigo">
+                                    <b><span id="lblInfo_hc_Mi">Households provided with tap water connection since launch of the Mission </span>
+                                    </b> 
+                                </div>                               
+                                <div class="jjm-col l12 m12 s12  jjm-medium jjm-text-indigo"><span id="lblHC_launch" style="font-weight: 600;" class="jjm-text-shadow jjm-xlarge">0,000</span> (<span id="lblHCPer_launch" style="font-weight: 600;">0.0</span>%)</div>
+                            </div>
+
+
+                             <div class="jjm-col l6 m6 s12">                               
+
+                                <div class="jjm-col l12 m12 s12 jjm-small  jjm-text-blue">
+                                    <b><span id="lblInfo_hc_AsOn">Households with  tap water connections  as on date          </span></b> 
+                                </div>
+                                <div class="jjm-col l12 m12 s12  jjm-medium jjm-text-blue w3-tooltip_dashboard"><span class="w3-tooltiptext">FHTC provided yesterday</span> +<span id="lblHCToday" style="font-weight: 600;">0</span> </div>
+                                <div class="jjm-col l12 m12 s12  jjm-medium jjm-text-blue"><span id="lblHC" style="font-weight: 600;"   class="jjm-text-shadow jjm-xlarge" >0</span>  ( <span id="lblHCPer" style="font-weight: 600;">0</span>% )  </div>
+                               
+                            </div>
+                     
+
+                        </div>
+
+                         
+
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-hide-small jjm-margin-top jjm-padding jjm-center">
+                            <h5 class="jjm-text-orange" style="font-weight: 800; width: 100%; text-align: left;"><span id="lblInfo_HHG">Har Ghar Jal<sup class="jjm-text-red">*</sup> Status</span></h5>
+                            <div class="jjm-col l12 m12 s12">
+                                <div class="jjm-col l12 m12 s12 jjm-round-large jjm-padding-small">
+                                    <div class="jjm-col l12 m12 s12 jjm-sand jjm-center jjm-small jjm-text-black jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-border-bottom" style="vertical-align: middle; text-align: left;">
+                                            <span id="lbl100Per_State_C" style="font-weight: 600;">Certified States/ UTs</span> : 
+                                            <span id="lblHCState_C" style="font-weight: 600;" class="jjm-medium jjm-text-indigo">&nbsp;Goa, D&NH and D&D</span>
+                                        </div>
+                                        <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-border-bottom" style="vertical-align: middle; text-align: left;">
+                                            <span id="lbl100Per_State" style="font-weight: 600;">Reported States/ UTs</span> : 
+                                            <span id="lblHCState" style="font-weight: 600;" class="jjm-medium jjm-text-indigo"></span>
+                                            <marquee id="mrqId" style="display: none;" hspace="0" vspace="1" scrolldelay="135" scrollamount="6" loop="infinite" onmouseover="document.all.mrqId.stop()" onmouseout="document.all.mrqId.start()">
+                                            </marquee>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="jjm-col l3 m3 s6  jjm-padding-small jjm-round-large">
+                                    <div class="jjm-col l12 m12 s12 jjm-light-gray jjm-center jjm-small jjm-text-black  jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-border-bottom">
+                                            <br />
+                                            <b><span id="lbl100Per_District">Districts</span></b>
+                                            <br />
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_District_Rep">Reported</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(1)'></i></b>
+                                            <br />
+                                            <span id="lblHCDistrict" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCDistrict')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_list(1)" style="font-weight: 600; cursor: pointer;" id="hide_DistrictHGJ">(+<span id="lblNoofDistrictHGJ_Today"></span>)</a>
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6">
+                                            <b><span id="lbl100Per_District_C">Certified</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(2)'></i></b>
+                                            <br />
+                                            <span id="lblHCDistrict_C" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="getdateCertifiedDistrictBlock('lblHCDistrict_C',1)">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_Certifiedlist(1)" style="font-weight: 600; cursor: pointer;" id="hide_DistrictHGJCertified">(+<span id="lblNoofDistrictHGJCertified_Today"></span>)</a>
+                                            <br />
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="jjm-col l3 m3 s6 jjm-padding-small jjm-round-large">
+                                    <div class="jjm-col l12 m12 s12 jjm-pale-red jjm-center jjm-small jjm-text-black  jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-border-bottom">
+                                            <br />
+                                            <b><span id="lbl100Per_Block">Blocks</span></b>
+                                            <br />
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_Block_Rep">Reported</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(1)'></i></b>
+                                            <br />
+                                            <span id="lblHCBlock" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCBlock')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_list(2)" style="font-weight: 600; cursor: pointer;" id="hide_BlockHGJ">(+<span id="lblNoofBlockHGJ_Today">0</span>)</a>
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6">
+                                            <b><span id="lbl100Per_Block_C">Certified</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(2)'></i></b>
+                                            <br />
+                                            <span id="lblHCBlock_C" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="getdateCertifiedDistrictBlock('lblHCBlock_C',2)"></span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_Certifiedlist(2)" style="font-weight: 600; cursor: pointer;" id="hide_BlockHGJCertified">(+<span id="lblNoofBlockHGJCertified_Today">0</span>)</a>
+                                            <br />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="jjm-col l3 m3 s6 jjm-padding-small">
+                                    <div class="jjm-col l12 m12 s12 jjm-pale-blue jjm-center jjm-small jjm-text-black  jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-border-bottom">
+                                            <br />
+                                            <b><span id="lbl100Per_Panchayat">Panchayats</span></b>
+                                            <br />
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_Panchayat_Rep">Reported</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(1)'></i></b>
+                                            <br />
+                                            <span id="lblHCPanchayat" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCPanchayat')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_list(3)" style="font-weight: 600; cursor: pointer;" id="hide_PanchayatHGJ">(+<span id="lblNoofPanchayatHGJ_Today"></span>)</a>
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_Panchayat_C">Certified</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(2)'></i></b>
+                                            <br />
+                                            <span id="lblHCPanchayat_C" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCPanchayat_C')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_Certifiedlist(3)" style="font-weight: 600; cursor: pointer;" id="hide_PanchayatHGJCertified">(+<span id="lblNoofPanchayatHGJCertified_Today"></span>)</a>
+                                            <br />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="jjm-col l3 m3 s6  jjm-padding-small">
+                                    <div class="jjm-col l12 m12 s12 jjm-pale-green jjm-center jjm-small jjm-text-black  jjm-card">
+                                        <div class="jjm-col l12 m12 s12 jjm-border-bottom">
+                                            <br />
+                                            <b><span id="lbl100Per_Village">Villages</span></b>
+                                            <br />
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_Village_Rep">Reported</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(1)'></i></b>
+                                            <br />
+                                            <span id="lblHCVillage" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCVillage')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_list(4)" style="font-weight: 600; cursor: pointer;" id="hide_VillageHGJ">(+<span id="lblNoofvillageHGJ_Today"></span>)</a>
+                                            <br />
+                                        </div>
+                                        <div class="jjm-col l6 m6 s6 jjm-border-right">
+                                            <b><span id="lbl100Per_Village_C">Certified</span>&nbsp;<i class='fa fa-info-circle jjm-text-indigo jjm-medium' style='cursor: pointer;' aria-hidden='true' onclick='open_hargharjal_info(2)'></i></b>
+                                            <br />
+                                            <span id="lblHCVillage_C" style="font-weight: 600; cursor: pointer;" class="jjm-large jjm-text-indigo" onclick="openJ8('lblHCVillage_C')">0</span>
+                                            <br />
+                                            <a class="jjm-small jjm-text-blue" onclick="getHGJ_Today_Certifiedlist(4)" style="font-weight: 600; cursor: pointer;" id="hide_VillageHGJCertified">(+<span id="lblNoofvillageHGJCertified_Today"></span>)</a>
+                                            <br />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="jjm-col l12 m12 s12 jjm-padding-small jjm-left">
+                                    <span id="lblHGJMsg" style="font-weight: 600;" class="jjm-tiny jjm-left jjm-hide jjm-text-red">* Har Ghar Jal means all households in that unit are provided with tap water supply</span>
+                                    <span id="lblHGJMsg2" style="font-weight: 600;" class="jjm-tiny jjm-left jjm-hide jjm-text-red">&nbsp;&nbsp;Certified Districts/ Blocks/ Panchayats/ Villages are included in Reported</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-margin-top jjm-padding jjm-chartDivHeight jjm-hide-small">
+                            <div class="jjm-col l7 m7 s5 jjm-padding-small">
+                                <div class="jjm-col l12 m12 s12">
+                                    <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblGraph_Month_head">Progress: HHs provided with tap water supply</span></h5>
+                                </div>
+                            </div>
+                            <div class="jjm-col l5 m5 s7" style="height: 30px;">
+                                <ul class="nav nav-tabs-lab">
+                                    <li class="jjm-bottombar jjm-border-gray" style="margin-left: 1px; display: none;" id="li1"><a href="javascript:getfillDashboard_data(1)" class="list-group-item jjm-text-gray jjm-QualityButton jjm-small" id="ag1">Monthly</a></li>
+                                    <li class="jjm-bottombar jjm-border-gray" style="margin-left: 1px;" id="li2"><a href="javascript:getfillDashboard_data(2)" class="list-group-item jjm-text-gray jjm-QualityButton jjm-small" id="ag2">Yearly</a></li>
+                                    <li class="jjm-bottombar jjm-border-blue" style="margin-left: 1px;" id="li0"><a href="javascript:getfillDashboard_data(0)" class="list-group-item jjm-text-blue jjm-CoverageButton jjm-small" id="ag0">Cumulative</a></li>
+
+                                </ul>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-responsive">
+
+                                <div id="myChart" class="jjm-chartHeight"></div>
+                            </div>
+                        </div>
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-margin-top jjm-padding jjm-hide-small">
+                            <div class="jjm-col l12 m12 s5">
+                                <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblbudjectsaction_head">Financial Progress</span></h5>
+                            </div>
+                            <div class="jjm-col l12 m12 s12">
+                                <div id="myChart_budjectsaction" class="jjm-chartHeight-financial"></div>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-border-top jjm-margin-top">
+                                <h5 class="jjm-text-orange" style="font-weight: 800; width: 100%; text-align: left;"><span id="lblcollapse_expend_financial" class="jjm-text-black jjm-xlarge" style="cursor: pointer;" onclick="display_financial()">[+]</span>&nbsp;<span id="lblFinProgress_head">State wise financial progress</span>
+                                </h5>
+                                <div class="jjm-col l12 m12 s12" id="financial_tab">
+                                    <div class="jjm-row">
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2019-2020');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding" style="width: 20%!important;">2019-20</div>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2020-2021');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding" style="width: 20%!important;">2020-21</div>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2021-2022');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding" style="width: 20%!important;">2021-22</div>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2022-2023');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding" style="width: 20%!important;">2022-23</div>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="changeFinanceData(event, '2023-2024');">
+                                            <div class="jjm-col l3 m3 s3 jjm-medium jjm-center tablink jjm-bottombar jjm-hover-light-grey jjm-padding jjm-light-grey jjm-border-red" style="width: 20%!important;">2023-24</div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="jjm-col l12 m12 s12 jjm-responsive jjm-margin-top" id="financial_details">
+                                    <table class="jjm-table jjm-bordered" id="myTable_financial">
+                                        <thead>
+                                            <tr>
+                                                <th onclick="jjm.sortHTML('#myTable_financial', '.item', 'td:nth-child(1)')" style="cursor: pointer; width: 25%;">
+                                                    <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                        <label id="lbltblState_financial">State/ UT</label>
+                                                        <br />
+                                                        <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    </div>
+                                                </th>
+
+                                                <th onclick="jjm.sortNum('#myTable_financial', '.item', 'td:nth-child(3)')" style="cursor: pointer; width: 25%;">
+                                                    <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                        <label id="lbltblRelease_financial">Release (Rs in Crore)</label>
+                                                        <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tblBody_financial">
+                                        </tbody>
+                                        <tfoot id="tblFoot_financial" class="jjm-medium">
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="pdfTableData_HGJ" class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-padding-small jjm-margin-top ">
+                            <div class="jjm-col l12 m12 s12" id="pdftablehdr_HGJ" style="display: none;">
+                                <div class="jjm-col l3 m3 s3 jjm-left">
+                                    <img src="content/images/embgold.png" style="height: 70px;" alt="National Emblom" />
+                                </div>
+                                <div class="jjm-col l6 m6 s6 jjm-center jjm-text-blue">
+                                    <h2>Jal Jeevan Mission
+                                        <br />
+                                        Har Ghar Jal</h2>
+                                </div>
+                                <div class="jjm-col l3 m3 s3 jjm-right">
+                                    <span class="jjm-right jjm-padding">
+                                        <img src="content/images/img/JJM_88x100.png" alt="Jal Jeevan Mission" style="height: 70px;" /></span>
+                                </div>
+                                <div class="jjm-col l12 m12 s12">
+                                    <hr />
+                                </div>
+                            </div>
+                            <div class="jjm-col l10 m10 s10 jjm-padding-small">
+                                <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblcollapse_expend_HGJ" class="jjm-text-black jjm-xlarge" style="cursor: pointer;" onclick="display_HGJ()">[+]</span>&nbsp;<span id="lblTable_head_HGJ">Har Ghar Jal Status</span></h5>
+                            </div>
+                            <div class="jjm-col l2 m2 s2" id="div_HGJ_export">
+                                <a href="javascript:ExporttablePdf_HGJ()" id="btn_download_HGJ" class="jjm-right jjm-padding" title="Download Report" style="text-decoration: none;" data-toggle="tooltip">
+                                    <i class="fa fa-download jjm-large"></i>
+                                </a>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-responsive" id="div_tbl_HGJ">
+                                <table class="jjm-table jjm-bordered" id="myTable_HGJ">
+                                    <thead>
+                                        <tr class="jjm-hide-small jjm-hide-medium">
+                                            <th onclick="jjm.sortHTML('#myTable_HGJ', '.item', 'td:nth-child(1)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                    <label id="lbltblState_HGJ">State/ UT</label>
+                                                    <br />
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <br />
+                                                </div>
+                                            </th>
+                                            
+                                            <th onclick="jjm.sortNum('#myTable_HGJ', '.item', 'td:nth-child(5)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%;">
+                                                    <label id="lbltblVillage_100PerTap">
+                                                        Villages<br />
+                                                        reported 100 %
+                                                        <br />
+                                                        tap connection</label><i class="fa fa-sort" style="font-size: 13px;"></i><br />
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable_HGJ', '.item', 'td:nth-child(6)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                    <label id="lbltblVillage_Certified">
+                                                        Villages<br />
+                                                        Certified<br />
+                                                    </label>
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable_HGJ', '.item', 'td:nth-child(4)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-16 jjm-table-th" style="width: 100%; padding-right: 4px;">
+                                                    <label id="lbltblVillage_Certified_Per">
+                                                        Villages<br />
+                                                        Certified<br />
+                                                        (%)</label><i class="fa fa-sort" style="font-size: 13px;"></i><br />
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr class="jjm-hide-large">
+                                            <th onclick="jjm.sortHTML('#myTable_HGJ', '.item', 'td:nth-child(1)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblState_HGJ_M">State/ UT</label>
+                                                    <br />
+                                                </div>
+                                            </th>
+                                            
+                                            <th onclick="jjm.sortNum('#myTable_HGJ', '.item', 'td:nth-child(5)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblVillage_100PerTap_M">
+                                                        Villages<br />
+                                                        reported
+                                                        <br />
+                                                        100 % tap
+                                                        <br />
+                                                        connection</label>
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable_HGJ', '.item', 'td:nth-child(6)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblVillage_Certified_M">
+                                                        Villages<br />
+                                                        Certified<br />
+                                                    </label>
+                                                    <br />
+                                                </div>
+                                            </th>
+                                            <th onclick="jjm.sortNum('#myTable_HGJ', '.item', 'td:nth-child(4)')" style="cursor: pointer; width: 25%;">
+                                                <div class="jjm-pale-blue jjm-hover-black jjm-padding-small jjm-round-small" style="width: 100%">
+                                                    <i class="fa fa-sort" style="font-size: 13px;"></i>
+                                                    <br />
+                                                    <label id="lbltblVillage_Certified_Per_M">
+                                                        Villages<br />
+                                                        Certified<br />
+                                                        (%)<br />
+                                                    </label>
+                                                    <br />
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblBody_HGJ">
+                                    </tbody>
+                                    <tfoot id="tblFoot_HGJ" class="jjm-medium">
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-right">
+                                <span class="jjm-right" id="printDate_HGJ"></span>
+                            </div>
+                        </div>
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-padding jjm-margin-top ">
+                            <div class="jjm-col l10 m10 s10">
+                                <h5 class="jjm-text-orange" style="font-weight: 800;"><span id="lblcollapse_expend_graph" class="jjm-text-black jjm-xlarge" style="cursor: pointer;" onclick="display_tapconngraph()">[+]</span>&nbsp;<span id="lblGraph_StateWise">Status of households with tap water connection</span></h5>
+                            </div>
+                            <div class="jjm-col l2 m2 s2">
+                                &nbsp;
+                                <a href="javascript:ExportPdf()" id="btn_downloadGraph" class="jjm-right jjm-padding jjm-hide" title="Download graph" style="text-decoration: none;" data-toggle="tooltip">
+                                    <i class="fa fa-download jjm-large"></i>
+                                </a>
+                            </div>
+                            <div class="jjm-col l12 m12 s12" id="div_graph">
+                                <div id="FHTC_Chart" class="jjm-fhtcchart"></div>
+                            </div>
+
+                            <div class="jjm-col l12 m12 s12 jjm-padding jjm-center" id="div_graph_type">
+                                <label class="jjm-medium" onclick="getfillDashboard_Graph_data(1)">
+                                    <input class="jjm-radio" type="radio" name="fhtc" value="1">
+                                    <b><span id="lblrbn1">As on 15 Aug 2019</span></b></label>
+
+                                <label class="jjm-medium" onclick="getfillDashboard_Graph_data(0)">
+                                    <input class="jjm-radio" type="radio" name="fhtc" value="0" checked>
+                                    <b><span id="lblrbn2">As on date</span></b></label>
+                            </div>
+                        </div>
+                        <div class="jjm-col l12 m12 s12 jjm-card-2 jjm-white jjm-round-xlarge jjm-padding jjm-logo-large jjm-margin-top">
+                            <img src="content/images/JJMlogo.png" alt="Jal Jeevan Mission Logo" id="jjmLogoChangeLive" class="jjm-padding jjm-logoimage-large" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           
+
+            <div class="jjm-container jjm-centered jjm-DivpaddingTop">
+                <div class="jjm-row">
+                </div>
+            </div>
+
+
+            <div class="jjm-container jjm-centered jjm-DivpaddingTop">
+                <div class="jjm-row">
+                </div>
+                <div class="jjm-hide" id="top-content">
+                    <div class="jjm-col l12 m12 s12">
+                        <img src="content/images/hdr.jpg" alt="HDR icon" />
+                    </div>
+                    <div class="jjm-col l12 m12 s12">
+                        <hr />
+                    </div>
+                    <center>
+                        <div class="jjm-col l12 m12 s12">
+                            <span class="jjm-text-dark-grey" style="font-weight: 600; float: unset; text-align: center !important;">Comparative FHTC coverage status</span>
+                        </div>
+                    </center>
+                </div>
+            </div>
+            <div id="Popup_FhtcStatus" class="jjm-modal w3-centered" style="margin-top: 60px !important;">
+                <div class="jjm-modal-content">
+                    <div class="jjm-blue jjm-display-container jjm-padding jjm-text-yellow">
+                        <span onclick="document.getElementById('Popup_FhtcStatus').style.display='none'" class="jjm-button jjm-display-topright">&times;</span>
+                        <h6 class="jjm-text-white" style="font-weight: 800; width: 100%; text-align: left;" id="lblfhtc_status"></h6>
+                    </div>
+                    <div class="jjm-container jjm-padding w3-pale-yellow">
+                        <div class="jjm-row w3-padding-small">
+                            <div class="jjm-col l12 m12 s12 w3-Center jjm-responsive">
+                                <div id="FHTC_Chart_District" class="jjm-chartHeight"></div>
+                                <div id="FHTC_Chart_Block" class="jjm-chartHeight"></div>
+                                <div id="FHTC_Chart_Panchayat" class="jjm-chartHeight"></div>
+                                <div id="FHTC_Chart_Village" class="jjm-chartHeight"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="ModelPop_Id" class="jjm-modal jjm-margin-top">
+                <div class="jjm-modal-content jjm-animate-zoom" style="width: 70%; margin-top: 35px;">
+                    <header class="jjm-container jjm-dark-grey">
+                        <span onclick="document.getElementById('ModelPop_Id').style.display='none'" class="jjm-button jjm-display-topright">&times;</span>
+                        <h5>
+                            <label id="popHead"></label>
+                        </h5>
+                    </header>
+                    <div class="jjm-container jjm-padding">
+                        <div class="jjm-row jjm-padding-small">
+                            <div class="jjm-col l12 m12 s12 jjm-responsive" id="tblcertified" style="max-height: 280px; overflow-y: scroll;">
+                            </div>
+                        </div>
+                        <div class="jjm-row jjm-padding-small">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="se-pre-con">
+                <img id="imgLoading3" src="content/images/img/loading.gif" alt="loading" style="height: 35px; width: 35px; transform: translateY(-50%); position: absolute; top: 45%; left: 49%; opacity: 1.0; z-index: 9999;" />
+            </div>
+
+            <div id="ModelHGJdistrictPop_Id" class="jjm-modal jjm-margin-top">
+                <div class="jjm-modal-content jjm-animate-zoom" style="width: 60%; margin-top: 35px;">
+                    <header class="jjm-container jjm-dark-grey">
+                        <span onclick="document.getElementById('ModelHGJdistrictPop_Id').style.display='none'" class="jjm-button jjm-display-topright">&times;</span>
+                        <h5>
+                            <label id="popHGJdistrictHead"></label>
+                        </h5>
+                    </header>
+                    <div class="jjm-container jjm-padding">
+                        <div class="jjm-row jjm-padding-small">
+                            <div class="jjm-col l12 m12 s12 jjm-responsive" id="tblHGJdistrictdata" style="max-height: 350px; overflow-y: scroll;">
+                            </div>
+                        </div>
+                        <div class="jjm-row jjm-padding-small">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="ModelHGJblockPop_Id" class="jjm-modal jjm-margin-top">
+                <div class="jjm-modal-content jjm-animate-zoom" style="width: 70%; margin-top: 35px;">
+                    <header class="jjm-container jjm-dark-grey">
+                        <span onclick="document.getElementById('ModelHGJblockPop_Id').style.display='none'" class="jjm-button jjm-display-topright">&times;</span>
+                        <h5>
+                            <label id="popHGJblockHead"></label>
+                        </h5>
+                    </header>
+                    <div class="jjm-container jjm-padding">
+                        <div class="jjm-row jjm-padding-small">
+                            <div class="jjm-col l12 m12 s12 jjm-responsive" id="tblHGJblockdata" style="max-height: 350px; overflow-y: scroll;">
+                            </div>
+                        </div>
+                        <div class="jjm-row jjm-padding-small">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="ModelHGJpanchayatPop_Id" class="jjm-modal jjm-margin-top">
+                <div class="jjm-modal-content jjm-animate-zoom" style="width: 70%; margin-top: 35px;">
+                    <header class="jjm-container jjm-dark-grey">
+                        <span onclick="document.getElementById('ModelHGJpanchayatPop_Id').style.display='none'" class="jjm-button jjm-display-topright">&times;</span>
+                        <h5>
+                            <label id="popHGJpanchayatHead"></label>
+                        </h5>
+                    </header>
+                    <div class="jjm-container jjm-padding">
+                        <div class="jjm-row jjm-padding-small">
+                            <div class="jjm-col l12 m12 s12 jjm-responsive" id="tblHGJpanchayatdata" style="max-height: 350px; overflow-y: scroll;">
+                            </div>
+                        </div>
+                        <div class="jjm-row jjm-padding-small">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ModelHGJ_info_Pop_Id" class="jjm-modal jjm-margin-top">
+                <div class="jjm-modal-content" style="width: 60%; margin-top: 35px;">
+                    <header class="jjm-container jjm-dark-grey">
+                        <span onclick="document.getElementById('ModelHGJ_info_Pop_Id').style.display='none'" class="jjm-button jjm-display-topright">&times;</span>
+                        <h5>
+                            <i class="fa fa-info-circle jjm-xlarge" aria-hidden="true"></i>&nbsp;<label id="HGJ_info_PopHead">About Har Ghar Jal</label>
+                        </h5>
+                    </header>
+                    <div class="jjm-container jjm-padding-small">
+                        <div class="jjm-row">
+                            <div class="jjm-col l12 m12 s12 jjm-medium jjm-responsive" id="div_harghar_jal_about">
+                                <table class="jjm-table jjm-striped">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 100%;">
+                                                <p class=" w3-justify" style="width: 100%!important;">
+                                                    Har Ghar Jal (HGJ) means all households in that administrative unit are provided with tap water supply. There are three stages for Har Ghar Jal declaration process.
+                                                </p>
+                                                <p class=" w3-justify">
+                                                    <b>Stage 1 :</b> The households that are provided with tap water connection are noted in JJM IMIS after verification of name and Aadhaar number of head of household. Once all households of the village are noted in JJM IMIS the villages acquires status of village with 100% tap water connection.
+                                                </p>
+                                                <p class=" w3-justify">
+                                                    <b>Stage 2 :</b> 'Reported' means water supply department of State/ UT has confirmed that water is being supplied through taps to all households, schools and Anganwadi Centers in that administrative unit.
+                                                </p>
+                                                <p class=" w3-justify">
+                                                    <b>Stage 3 :</b> 'Certified' means that the Gram Sabha has passed the resolution after ascertaining the claim of water supply department that all the households, schools and Anganwadi Centers are getting the tap water supply in village. This is carried out after the water supply department provided the certificate to Gram Panchayat declaring that all households are provided with tap water supply. 
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-medium jjm-responsive" id="div_harghar_jal_reported">
+                                <table class="jjm-table jjm-striped">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 100%;">
+                                                <p class=" w3-justify" style="width: 100%!important;">
+                                                    'Reported' means water supply department of State/ UT has confirmed that water is being supplied through taps to all households, schools and Anganwadi Centers in that administrative unit.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-medium jjm-responsive" id="div_harghar_jal_certified">
+                                <table class="jjm-table jjm-striped">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 100%;">
+                                                <p class=" w3-justify" style="width: 100%!important;">
+                                                    'Certified' means that the Gram Sabha has passed the resolution after ascertaining the claim of water supply department that all the households, schools and Anganwadi Centers are getting the tap water supply in village. This is carried out after the water supply department provided the certificate to Gram Panchayat declaring that all households are provided with tap water supply. 
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="jjm-row jjm-padding-small">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ModelHGJVillagePop_Id" class="jjm-modal jjm-margin-top">
+                <div class="jjm-modal-content jjm-animate-zoom" style="width: 75%; margin-top: 35px;">
+                    <header class="jjm-container jjm-dark-grey">
+                        <span onclick="document.getElementById('ModelHGJVillagePop_Id').style.display='none'" class="jjm-button jjm-display-topright">&times;</span>
+                        <h5>
+                            <label id="popHGJVillageHead"></label>
+                        </h5>
+                    </header>
+
+                    <div class="jjm-container jjm-padding">
+                        <div class="jjm-row jjm-padding-small">
+                            <div class="jjm-col l10 m10 s10 jjm-medium">
+                                On date - <span id="txtdate"></span>: <b><span class="jjm-text-black" id="lblnoofvillage_hgj_yesturday"></span></b>
+                            </div>
+                            <div class="jjm-col l2 m2 s2 jjm-medium">
+                                <input type="image" name="ImgbtnHGJ" id="ImgbtnHGJ" class="w3-right" src="content/images/excel_icon.png" alt="Export" align="right" border="0" />
+                                <input type="hidden" name="hidCat_HGJ" id="hidCat_HGJ" />
+                                <input type="hidden" name="hidFdate" id="hidFdate" />
+                                <input type="hidden" name="hidtodate" id="hidtodate" />
+                            </div>
+                            <div class="jjm-col l12 m12 s12 jjm-medium">
+                                Form date - <span id="Fdate"></span>-  To date -  <span id="todate"></span>: <b><span id="lblnoofvillage_hgj_seven_day"></span></b>
+                            </div>
+                        </div>
+                        <div class="jjm-row jjm-padding-small">
+                            <div class="jjm-col l12 m12 s12 jjm-responsive" id="tblHGJvillagesevendaysdata" style="max-height: 350px; overflow-y: scroll;">
+                            </div>
+                        </div>
+                        <div class="jjm-row jjm-padding-small">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Footer -->
+            <footer class="jjm-container jjm-padding jjm-light-grey jjm-center">
+                
+                <p>
+                    <label class="jjm-medium" style="font-weight: 600;">Total Visitors : </label>
+                    <span id="lblCount" class="jjm-medium jjm-text-shadow jjm-text-indigo count">5687326</span>
+                    (
+                    <span id="lblVisitStartDate" class="jjm-small jjm-text-black">since  13 May, 2021</span>
+                    )<br />
+                    <label class="jjm-medium">Data is updated by respective States/UTs. Designed, developed and hosted by National Informatics Center (NIC). Copyright © NJJM 2020 </label>
+                </p>
+            </footer>
+
+            <!-- End page content -->
+        </div>
+
+        <div id="mySidenav" class="sidenav">
+            <div class="texts">
+                <a href="javascript:void(0)" class="closebtn" id="stop-video" onclick="closeNav()">×</a>
+            </div>
+            <iframe src="https://www.youtube.com/embed/qXAjlpPFwPQ?si=fRhx-J9S5dtOdBba" id="video" title="YouTube video player" frameborder="0"></iframe>
+        </div>
+        <div id="mySidenav_hc" class="sidenav">
+            <div class="texts">
+                <a href="javascript:void(0)" class="closebtn" id="stop-video_hc" onclick="closeNav_hc()">×</a>
+            </div>
+            <iframe src="https://www.youtube.com/embed/UFZxeoMl9Nk?si=meANkpd-nDWHX5XD" id="video_hc" title="YouTube video player" frameborder="0"></iframe>
+        </div>
+        <div id="mySidenav2" class="sidenav">
+            <div class="texts">
+                <a href="javascript:void(0)" class="closebtn" id="stop-video1" onclick="closeNav2()">×</a>
+            </div>
+            <iframe src="https://www.youtube.com/embed/03eqTW3gHrg?si=kOTGch26s7aG2YHS" id="video1" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div id="mySidenav3" class="sidenav">
+            <div class="texts">
+                <a href="javascript:void(0)" class="closebtn" id="stop-video2" onclick="closeNav3()">×</a>
+            </div>
+            <iframe src="https://www.youtube.com/embed/xpF5ST0rP1k?si=egD5CGLd-GyMZVI4" id="video2" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div id="mySidenav4" class="sidenav">
+            <div class="texts">
+                <a href="javascript:void(0)" class="closebtn" id="stop-video3" onclick="closeNav4()">×</a>
+            </div>
+            <iframe src="https://www.youtube.com/embed/NV2LI7K7Ai0?si=xohjPUavpfsLLQOh" id="video3" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div id="mySidenav5" class="sidenav">
+            <div class="texts">
+                <a href="javascript:void(0)" class="closebtn" id="stop-video4" onclick="closeNav5()">×</a>
+            </div>
+            <iframe src="https://www.youtube.com/embed/7oT5FJXq3fk?si=mKIKyj92KtZcuo2p" id="video4" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div id="mySidenav6" class="sidenav">
+            <div class="texts">
+                <a href="javascript:void(0)" class="closebtn" id="stop-video5" onclick="closeNav6()">×</a>
+            </div>
+            <iframe src="https://www.youtube.com/embed/GK8yoVWyNwc?si=WiHA_hHjaZ83xeSf" title="YouTube video player" id="video5" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div id="mySidenav7" class="sidenav">
+            <div class="texts">
+                <a href="javascript:void(0)" class="closebtn" id="stop-video6" onclick="closeNav7()">×</a>
+            </div>
+            <iframe src="https://www.youtube.com/embed/-pobtflom3g?si=MUQLwCPPlZy9Vw7B" title="YouTube video player" id="video6" frameborder="0" allowfullscreen></iframe>
+        </div>
+
+        <script type="text/javascript">
+            function openNav() {
+                document.getElementById("mySidenav").style.width = "100%";
+            }
+            function closeNav() {
+                document.getElementById("mySidenav").style.width = "0";
+            }
+            function openNav_hc() {
+                document.getElementById("mySidenav_hc").style.width = "100%";
+            }
+            function closeNav_hc() {
+                document.getElementById("mySidenav_hc").style.width = "0";
+            }
+            function openNav2() {
+                document.getElementById("mySidenav2").style.width = "100%";
+            }
+            function closeNav2() {
+                document.getElementById("mySidenav2").style.width = "0";
+            }
+            function openNav3() {
+                document.getElementById("mySidenav3").style.width = "100%";
+            }
+            function closeNav3() {
+                document.getElementById("mySidenav3").style.width = "0";
+            }
+            function openNav4() {
+                document.getElementById("mySidenav4").style.width = "100%";
+            }
+            function closeNav4() {
+                document.getElementById("mySidenav4").style.width = "0";
+            }
+            function openNav5() {
+                document.getElementById("mySidenav5").style.width = "100%";
+            }
+            function closeNav5() {
+                document.getElementById("mySidenav5").style.width = "0";
+            }
+            function openNav6() {
+                document.getElementById("mySidenav6").style.width = "100%";
+            }
+            function closeNav6() {
+                document.getElementById("mySidenav6").style.width = "0";
+            }
+            function openNav7() {
+                document.getElementById("mySidenav7").style.width = "100%";
+            }
+            function closeNav7() {
+                document.getElementById("mySidenav7").style.width = "0";
+            }
+        </script>
+       
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var youTubeUrl = $('#video').attr('src');
+                $('#stop-video').on('click', function (e) {
+                    e.preventDefault();
+                    $('#video').attr('src', '');
+
+                    $('#video').attr('src', youTubeUrl);
+
+                });
+            });
+            $(document).ready(function () {
+                var youTubeUrl = $('#video_hc').attr('src');
+                $('#stop-video_hc').on('click', function (e) {
+                    e.preventDefault();
+                    $('#video_hc').attr('src', '');
+
+                    $('#video_hc').attr('src', youTubeUrl);
+
+                });
+            });
+            $(document).ready(function () {
+                var youTubeUrl = $('#video1').attr('src');
+                $('#stop-video1').on('click', function (e) {
+                    e.preventDefault();
+                    $('#video1').attr('src', '');
+
+                    $('#video1').attr('src', youTubeUrl);
+
+                });
+            });
+            $(document).ready(function () {
+                var youTubeUrl = $('#video2').attr('src');
+                $('#stop-video2').on('click', function (e) {
+                    e.preventDefault();
+                    $('#video2').attr('src', '');
+
+                    $('#video2').attr('src', youTubeUrl);
+
+                });
+            });
+            $(document).ready(function () {
+                var youTubeUrl = $('#video3').attr('src');
+                $('#stop-video3').on('click', function (e) {
+                    e.preventDefault();
+                    $('#video3').attr('src', '');
+
+                    $('#video3').attr('src', youTubeUrl);
+
+                });
+            });
+            $(document).ready(function () {
+                var youTubeUrl = $('#video4').attr('src');
+                $('#stop-video4').on('click', function (e) {
+                    e.preventDefault();
+                    $('#video4').attr('src', '');
+
+                    $('#video4').attr('src', youTubeUrl);
+
+                });
+            });
+            $(document).ready(function () {
+                var youTubeUrl = $('#video5').attr('src');
+                $('#stop-video5').on('click', function (e) {
+                    e.preventDefault();
+                    $('#video5').attr('src', '');
+
+                    $('#video5').attr('src', youTubeUrl);
+
+                });
+            });
+            $(document).ready(function () {
+                var youTubeUrl = $('#video6').attr('src');
+                $('#stop-video6').on('click', function (e) {
+                    e.preventDefault();
+                    $('#video6').attr('src', '');
+
+                    $('#video6').attr('src', youTubeUrl);
+
+                });
+            });
+        </script>
+      
+        <script type="text/javascript">
+            // Get the Sidebar
+            var mySidebar = document.getElementById("mySidebar");
+
+            // Get the DIV with overlay effect
+            var overlayBg = document.getElementById("myOverlay");
+
+            // Toggle between showing and hiding the sidebar, and add overlay effect
+            function jjm_open() {
+                if (mySidebar.style.display === 'block') {
+                    mySidebar.style.display = 'none';
+                    overlayBg.style.display = "none";
+                } else {
+                    mySidebar.style.display = 'block';
+                    overlayBg.style.display = "block";
+                }
+            }
+
+            // Close the sidebar with the close button
+            function jjm_close() {
+                mySidebar.style.display = "none";
+                overlayBg.style.display = "none";
+            }
+            function myFunction() {
+
+                // Declare variables
+                var input, filter, table, tr, td, i, txtValue, input_M, filter_M;
+                input = document.getElementById("myInput");
+                filter = input.value.toUpperCase();
+                table = document.getElementById("tbl_search");
+                tr = table.getElementsByTagName("tr");
+                if (filter.length > 0) {
+                    table.style.display = "block";
+                    // Loop through all table rows, and hide those who don't match the search query
+                    for (i = 0; i < tr.length; i++) {
+                        td = tr[i].getElementsByTagName("td")[0];
+                        if (td) {
+                            txtValue = td.textContent || td.innerText;
+                            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                tr[i].style.display = "";
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                }
+                else {
+                    table.style.display = "none";
+                }
+                input_M = document.getElementById("input_M");
+                filter_M = input_M.value.toUpperCase();
+                table = document.getElementById("tbl_search_M");
+                if (filter_M.length > 0) {
+                    table.style.display = "block";
+                    // Loop through all table rows, and hide those who don't match the search query
+                    for (i = 0; i < tr.length; i++) {
+                        td = tr[i].getElementsByTagName("td")[0];
+                        if (td) {
+                            txtValue = td.textContent || td.innerText;
+                            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                tr[i].style.display = "";
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                }
+                else {
+                    table.style.display = "none";
+                }
+            }
+        </script>
+        <script type="text/javascript">
+            // Select the button
+            const btn = document.querySelector(".btn-toggle");
+            // Select the stylesheet <link>
+            const theme = document.querySelector("#theme_link");
+            // Listen for a click on the button
+            const currentTheme = localStorage.getItem("themecolor");
+            if (currentTheme == "dark") {
+                theme.href = "content/css/jjm-dark.css";
+                //theme.href = "content/css/jjm-dark_min.css";
+                localStorage.setItem("themeId", 1);
+                $('#SpanTheme').text("Light Theme");
+                $('#SpanTheme').css('color', 'Orange');
+            }
+            else {
+                theme.href = "content/css/jjm.css";
+                //theme.href = "content/css/jjm_min.css";
+                localStorage.setItem("themeId", 0);
+                $("[id$=hidThemeid]").val("0");
+                $('#SpanTheme').text("Dark Theme");
+                $('#SpanTheme').css('color', '#3675D3');
+            }
+
+            btn.addEventListener("click", function () {
+                // If the current URL contains "ligh-theme.css"
+                let themecolor = "light";
+                if (theme.getAttribute("href") == "content/css/jjm.css") {
+                    themecolor = "dark";
+                    theme.href = "content/css/jjm-dark.css";
+                    localStorage.setItem("themeId", 1);
+                    $('#SpanTheme').text("Light Theme");
+                    $('#SpanTheme').css('color', 'Orange');
+                }
+                else {
+                    theme.href = "content/css/jjm.css";
+                    localStorage.setItem("themeId", 0);
+                    $('#SpanTheme').text("Dark Theme");
+                    $('#SpanTheme').css('color', '#3675D3');
+                }
+                //if (theme.getAttribute("href") == "content/css/jjm_min.css") {
+                //    themecolor = "dark";
+                //    theme.href = "content/css/jjm-dark_min.css";
+                //    localStorage.setItem("themeId", 1);
+                //    $('#SpanTheme').text("Light Theme");
+                //    $('#SpanTheme').css('color', 'Orange');
+                //}
+                //else {
+                //    theme.href = "content/css/jjm_min.css";
+                //    localStorage.setItem("themeId", 0);
+                //    $('#SpanTheme').text("Dark Theme");
+                //    $('#SpanTheme').css('color', '#3675D3');
+                //}
+                ChangeMap_Param(G_Cat, G_SubCat, "0");
+                localStorage.setItem("themecolor", themecolor);
+            });
+            function wait(value) {
+                setTimeout(pagechange, 900);
+            }
+            function pagechange() {
+                window.location.href = "School/JJMSchool_India.aspx";
+            }
+            function pageNotchange() {
+                return false;
+            }
+            function startRunning() {
+                document.getElementById('mrqId').start();
+            }
+            function startRunning_M() {
+                document.getElementById('mrqId_M').start();
+            }
+        </script>
+        <script type="text/javascript">
+            $('document').ready(function () {
+                init_dashboard();
+            });
+
+            function init_dashboard() {
+                $("#info").hide();
+
+                var jkColor = [255, 255, 255, 0.5];//[255, 87, 51,1]
+                var stLayerColor = [139, 69, 19, 1];
+                //var stLayerColor = [78, 121, 190, 1];
+                var dtLayerWidth = 0.2;
+                var stLayerWidth = 0.5;
+                var distLayerColor = [78, 121, 190, 0.8];
+                var distLayerColor2 = [239, 239, 239, 1];
+                var distLayerColorVill = [255, 0, 0, 1];
+                var dtLayerWidthVill = 1.0;
+                var villLayerColor = '#000000';
+                var villLayerWidth = 1.0;
+                function getPageName(url) {
+                    var index = url.lastIndexOf("/") + 1;
+                    var filenameWithExtension = url.substr(index);
+                    var filename = filenameWithExtension.split(".")[0]; // <-- added this line
+                    return filename;                                    // <-- added this line
+                }
+                var URL = document.location.href;
+                PageName = "JJMIndia";
+                var CatArr;
+                var SubCatArr;
+                var ParamArr;
+                var param;
+                Lang = sessionStorage.getItem("Lang");
+                sessionStorage.clear();
+                if (typeof (Lang) == "undefined" || Lang == null) {
+                    Lang = 'en';
+                    sessionStorage.setItem("Lang", Lang);
+                }
+                else {
+                    Lang = Lang;
+                    sessionStorage.setItem("Lang", Lang);
+                }
+
+                if (Lang == 'en') {
+                    $("#lnkhi").css("display", "block");
+                    $("#lnken").css("display", "none");
+                }
+                else {
+                    $("#lnkhi").css("display", "none");
+                    $("#lnken").css("display", "block");
+                }
+                G_StName = 'India';
+                G_StCode = '0';
+
+                serviceUrl = $("[id$=hidwebserviceUrl]").val();
+                serviceUrlToken = $("[id$=hidwebserviceToken]").val();
+                serviceUrl_district = $("[id$=hidwebserviceUrl_district]").val();
+                serviceUrlToken_district = $("[id$=hidwebserviceToken_district]").val();
+
+                initMap(document.getElementById("map"), stLayerColor, stLayerWidth, distLayerColor, dtLayerWidth, jkColor, "0", "0", "0", "0", G_StName, document.getElementById("info"));
+                $(".se-pre-con2").fadeOut();
+                $("#imgLoading2").fadeOut();
+                counter(0, 0);
+            }
+            function counter(G_Cat, G_SubCat) {
+                $('.count').each(function () {
+                    $(this).prop('Counter', 0).animate({
+                        Counter: $(this).text()
+                    }, {
+                        duration: 4000,
+                        easing: 'swing',
+                        step: function (now) {
+                            $(this).text(Math.ceil(now));
+                            if (now > 0) {
+                                var commaNum = numberWithCommas($.trim(parseInt(now)), G_Cat, G_SubCat);
+                                $(this).text($.trim(commaNum));
+                            }
+                        }
+                    });
+                });
+            }
+            function numberWithCommas(number, G_Cat, G_SubCat) {
+                x = number;
+                if ((x == "") || (x == "0")) {
+                    return number;
+                }
+                x = x.toString();
+                var afterPoint = '';
+                if (x.indexOf('.') > 0)
+                    afterPoint = x.substring(x.indexOf('.'), x.length);
+                if (!isNaN(x) && x < 0) {
+                    return number;
+                }
+                x = Math.floor(x);
+                x = x.toString();
+
+                if (x == "NaN") {
+                    return number;
+                }
+                else {
+                    var lastThree = x.substring(x.length - 3);
+                    var otherNumbers = x.substring(0, x.length - 3);
+                    if (otherNumbers != '')
+                        lastThree = ',' + lastThree;
+                    var res;
+                    if ((G_Cat == 0) && (G_SubCat == 1)) {
+                        res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + afterPoint;
+                    }
+                    else {
+                        res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+                    }
+                    return res;
+                }
+            };
+
+        </script>
+        <script type="text/javascript">
+            // Get the modal
+            var modal = document.getElementById('Popup_FhtcStatus');
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+            function openJ8(Id) {
+                var val = $('#' + Id).text();
+                if (val == "0") {
+                    return;
+                }
+                window.open(
+                    "https://ejalshakti.gov.in/IMISReports/Reports/Physical/rpt_RWS_HarGharJalVillage.aspx?Rep=0&RP=Y", "_blank");
+            }
+        </script>
+
+    </form>
+</body>
+</html>

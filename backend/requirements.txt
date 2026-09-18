@@ -1,0 +1,14 @@
+﻿fastapi
+uvicorn
+google-genai
+googlemaps
+google-cloud-bigquery
+duckdb
+pydantic
+python-dotenv
+pytest
+python-Levenshtein
+pandas
+lxml
+openpyxl
+

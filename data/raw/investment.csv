@@ -1,0 +1,4 @@
+﻿admin_unit_id,amount_inr_crore,status,data_freshness_days,per_target_household,state_average_per_target_household,source_timestamp
+176,36.55,ongoing,60,18000,14000,2026-06-01T00:00:00Z
+166,4.2,planned,70,8000,14000,2026-06-01T00:00:00Z
+175,42,ongoing,100,19000,14000,2026-06-01T00:00:00Z

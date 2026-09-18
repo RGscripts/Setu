@@ -1,0 +1,4 @@
+﻿admin_unit_id,indicator_name,baseline_value,baseline_date,latest_value,latest_date,data_freshness_days,source_timestamp
+176,household_tap_water_coverage_pct,34,2024-01-01,35,2026-01-01,240,2026-01-01T00:00:00Z
+166,household_tap_water_coverage_pct,39,2024-01-01,40,2026-01-01,250,2026-01-01T00:00:00Z
+175,household_tap_water_coverage_pct,78,2024-01-01,86,2025-01-01,620,2025-01-01T00:00:00Z

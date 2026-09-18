@@ -1,0 +1,159 @@
+[
+  {
+    "admin_unit_id": "176",
+    "admin_unit_name": "Gorakhpur",
+    "sector": "water",
+    "citizen_signal": {
+      "report_count": 327,
+      "channel_count": 4,
+      "persistence_windows": 6,
+      "total_windows": 8,
+      "geographic_spread_score": 0.7,
+      "duplication_flag": false,
+      "signal_confidence_score": 78,
+      "signal_confidence_band": "HIGH",
+      "formula_version": "v1.0"
+    },
+    "independent_corroboration": {
+      "infra_coverage_pct": 38,
+      "infra_data_freshness_days": 90,
+      "remote_sensing_corroboration": null,
+      "corroboration_score": 65,
+      "corroboration_band": "MEDIUM",
+      "independent_deficit_indicator": true,
+      "formula_version": "v1.0"
+    },
+    "investment": {
+      "amount_inr_crore": 36.55,
+      "status": "ongoing",
+      "data_freshness_days": 60,
+      "per_target_household": 18000,
+      "state_average_per_target_household": 14000,
+      "per_target_household_rank_quartile": null,
+      "comparable_district_count": 3
+    },
+    "outcome": {
+      "indicator_name": "household_tap_water_coverage_pct",
+      "baseline_value": 34,
+      "baseline_date": "2024-01-01",
+      "latest_value": 35,
+      "latest_date": "2026-01-01",
+      "change_absolute_pct_points": 1,
+      "data_freshness_days": 240
+    },
+    "provenance": {
+      "sources": ["mock_cprams_connector", "jjm_up_expenditure_report", "jjm_dashboard_extract"],
+      "timestamps": {
+        "citizen_signal": "2026-03-21T12:30:00Z",
+        "infra": "2026-06-01T00:00:00Z",
+        "investment": "2026-06-01T00:00:00Z",
+        "outcome": "2026-01-01T00:00:00Z"
+      }
+    }
+  },
+  {
+    "admin_unit_id": "166",
+    "admin_unit_name": "Jhansi",
+    "sector": "water",
+    "citizen_signal": {
+      "report_count": 150,
+      "channel_count": 3,
+      "persistence_windows": 5,
+      "total_windows": 8,
+      "geographic_spread_score": 0.8,
+      "duplication_flag": false,
+      "signal_confidence_score": 72,
+      "signal_confidence_band": "HIGH",
+      "formula_version": "v1.0"
+    },
+    "independent_corroboration": {
+      "infra_coverage_pct": 42,
+      "infra_data_freshness_days": 80,
+      "remote_sensing_corroboration": null,
+      "corroboration_score": 70,
+      "corroboration_band": "HIGH",
+      "independent_deficit_indicator": true,
+      "formula_version": "v1.0"
+    },
+    "investment": {
+      "amount_inr_crore": 4.2,
+      "status": "planned",
+      "data_freshness_days": 70,
+      "per_target_household": 8000,
+      "state_average_per_target_household": 14000,
+      "per_target_household_rank_quartile": null,
+      "comparable_district_count": 3
+    },
+    "outcome": {
+      "indicator_name": "household_tap_water_coverage_pct",
+      "baseline_value": 39,
+      "baseline_date": "2024-01-01",
+      "latest_value": 40,
+      "latest_date": "2026-01-01",
+      "change_absolute_pct_points": 1,
+      "data_freshness_days": 250
+    },
+    "provenance": {
+      "sources": ["mock_cprams_connector", "jjm_up_expenditure_report", "jjm_dashboard_extract"],
+      "timestamps": {
+        "citizen_signal": "2026-02-13T08:20:00Z",
+        "infra": "2026-06-01T00:00:00Z",
+        "investment": "2026-06-01T00:00:00Z",
+        "outcome": "2026-01-01T00:00:00Z"
+      }
+    }
+  },
+  {
+    "admin_unit_id": "175",
+    "admin_unit_name": "Prayagraj",
+    "sector": "water",
+    "citizen_signal": {
+      "report_count": 1000,
+      "channel_count": 2,
+      "persistence_windows": 2,
+      "total_windows": 8,
+      "geographic_spread_score": 0.2,
+      "duplication_flag": true,
+      "signal_confidence_score": 45,
+      "signal_confidence_band": "MEDIUM",
+      "formula_version": "v1.0"
+    },
+    "independent_corroboration": {
+      "infra_coverage_pct": 86,
+      "infra_data_freshness_days": 400,
+      "remote_sensing_corroboration": null,
+      "corroboration_score": 25,
+      "corroboration_band": "LOW",
+      "independent_deficit_indicator": false,
+      "formula_version": "v1.0"
+    },
+    "investment": {
+      "amount_inr_crore": 42,
+      "status": "ongoing",
+      "data_freshness_days": 100,
+      "per_target_household": 19000,
+      "state_average_per_target_household": 14000,
+      "per_target_household_rank_quartile": null,
+      "comparable_district_count": 3
+    },
+    "outcome": {
+      "indicator_name": "household_tap_water_coverage_pct",
+      "baseline_value": 78,
+      "baseline_date": "2024-01-01",
+      "latest_value": 86,
+      "latest_date": "2025-01-01",
+      "change_absolute_pct_points": 8,
+      "data_freshness_days": 620
+    },
+    "provenance": {
+      "sources": ["mock_cprams_connector", "jjm_up_expenditure_report", "jjm_dashboard_extract"],
+      "timestamps": {
+        "citizen_signal": "2025-01-10T11:00:00Z",
+        "infra": "2025-01-01T00:00:00Z",
+        "investment": "2026-06-01T00:00:00Z",
+        "outcome": "2025-01-01T00:00:00Z"
+      }
+    }
+  }
+]
+
